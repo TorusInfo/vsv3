@@ -1,0 +1,678 @@
+*
+*procedure Eti_cli
+*
+******************** PARA TIRAR DEPOIS *******************
+set color to "W+/B,N/W,N,W+/B"
+clear
+@ 00,00  to 24,79 double
+@ 02,00 say "Ì" + replicate("Í",78) + "¹"
+@ 22,00 say "Ì" + replicate("Í",78) + "¹"
+@ 01,27 say "     VIDEO CENTER"
+@ 23,27 say "Torus Inform tica Ltda"
+**********************************************************
+*
+set deleted ON
+if _file( "SYSFILE.MEM" )
+
+	restore from "SYSFILE.MEM" additive
+
+else
+
+	IMP_REL = "LPT1:"
+	
+endif	
+if .not. _file( "PADRAO.CLI" )
+
+	P_PAD = 1
+	P_ESP = 6
+	P_CAR = 2
+
+else
+
+	restore from "PADRAO.CLI" additive
+
+endif
+if .not. _file( "\DOS\WIPEFILE.EXE" )
+
+	set cursor OFF
+	clear  screen                                color "W+/R"
+	@ 00,00       to 24,79 double                color "W+/R"
+	@ 08,15 clear to 14,55                       color "R/N"
+	@ 08,15       to 14,55 double                color "W+/R"
+	@ 10,16 say "        *****  ATEN€ŽO  ***** " color "R+*/N"
+	@ 12,16 say "        C¢pia  n„o autorizada " color "R+/N"
+	@ 22,01 say " "                              color "W+/R"
+	for LOOP_1 = 15 to 5 step -1
+	
+		tone( 130 * LOOP_1, 5 )
+	
+	next	
+	inkey( 50 )
+	set cursor ON
+	set color  to
+	clear
+	quit
+		
+endif		
+*AREA    = _select()
+*SC_ETI  = savescreen( 00,00,24,79 )
+*SC_CLI  = setcolor()
+SC_CUR  = _set( "CURSOR" ) == "ON"
+set cursor OFF
+
+******************** PARA TIRAR DEPOIS *******************
+USE "CLIENTES.DBF"
+SET INDEX TO "CLIENTES.K1" KEY CLIENTES->NOME,;
+  	          "CLIENTES.K2" KEY CLIENTES->CPF_CLI ,;
+     	       "CLIENTES.K3" KEY CLIENTES->COD_CLI 
+***********************************************************
+ORD_CLI = indexord()
+set order to 3
+seek "000000"
+NOME_LOCADORA = CLIENTES->NOME
+ENDE_LOCADORA = CLIENTES->END_RES
+CIDA_LOCADORA = CLIENTES->CID_RES
+FONE_LOCADORA = iif( empty( CLIENTES->TEL_RES ), space( 23 ),;
+							"Fone : " + CLIENTES->TEL_RES )
+QT_CADA   = 01
+N_COLUNAS = 01
+ETIQUETAS = .T.
+CONTA_CAR = 00
+AV_1_216	 = chr( 27 ) + "3" + chr( 01 )		&&  seta espacamento de   1/216 "
+AV_1_72	 = chr( 27 ) + "3" + chr( 03 )		&&  seta espacamento de   1/72  "
+AV_1_8	 = chr( 27 ) + "3" + chr( 27 )		&&	 seta espacamento de   1/8   "
+AV_1_6	 = chr( 27 ) + "3" + chr( 36 )		&&	 seta espacamento de   1/6   "
+ENT_NEGR  = chr( 27 ) + "E"						&&  ativa negrito
+SAI_NEGR	 = chr( 27 ) + "F"						&&  desativa negrito
+K1 		 = iif( P_PAD = 1 , 99 , 124 )		&& tamanho do codigo em alta res.
+
+declare QUEM[6], Q_LL[6]
+QUEM[1] = "Fazer lista-cliente"
+QUEM[2] = "Imprimir - etiqueta"
+QUEM[3] = "Carteira"         
+QUEM[4] = "Tirar marcas-todas"
+QUEM[5] = "Definir  etiquetas"
+QUEM[6] = "Retornar"
+Q_LL[1] = "N"
+Q_LL[2] = "I"
+Q_LL[3] = "C"
+Q_LL[4] = "T"
+Q_LL[5] = "E"
+Q_LL[6] = "R"
+
+do while .T.
+
+	clear typeahead
+	set color to "W+/B,N/W,N,W+/B"
+	@ 03,01 clear to 21,78
+	Quadro( 03,02,05,46,"N/GR,N/GR,N,N/GR","N/N" )
+	@ 04,03 say "ETIQUETAS DE CODIGO DE BARRAS PARA CLIENTES" color "W+/GR"
+	Quadro( 13,02,20,22,"W+/R,N/R,N,W+/R","N/N" )
+	popup	window	14,03,19,21;
+			to			OP;
+			options	QUEM;
+			hilite 	Q_LL,"GR+/R";
+			color 	"W+/R,N/W,N,W+/R"
+	if 	OP = 1
+
+		if lastkey() # 27
+
+			Marca_cliente()
+
+		endif
+
+	elseif OP = 2
+
+		ETIQUETAS = .T.
+		Quantas_cli()
+
+		if lastkey() # 27
+
+			Imprime_etiqueta_cli()		
+
+		endif
+
+	elseif OP = 3
+
+		ETIQUETAS = .F.
+		Quantas_cli()
+
+		if lastkey() # 27
+
+			Imprime_etiqueta_cli()		
+
+		endif
+
+	elseif OP = 4
+
+		tira_marca_cli()
+
+	elseif OP = 5
+
+		Definir_cli()
+
+	else
+
+		exit
+
+	endif
+
+enddo
+
+select "CLIENTES"
+set order to ORD_CLI
+********************* DEVOLVER OS ARQUIVOS , CORES , STATUS DE COMO ENTROU
+set color  to
+set cursor SC_CUR
+clear
+close all
+quit
+
+***********************
+procedure Marca_cliente 
+***********************
+
+sc_tel = savescreen( 03,01,22,78 )
+clear typeahead
+CONTA_LIN = 00
+Quadro(03,31,20,70,"W+/R,W+/N,N,W+/R","N/N" )
+@ 04,32 say "   LISTA DOS CLIENTES JA MARCADOS"
+@ 05,31 say "Ì" + replicate( "Í", 38) + "¹"
+@ 05,38       say "Ë"
+for LOOP_1 = 06 to 19
+
+	@ LOOP_1,38 say "º"
+	
+next	
+@ 20,38 say "Ê"
+do while .T.
+
+	CODTIT = space( 06 )
+	set cursor ON
+	@ 23,01 	say "Digite o c¢digo do cliente : " ;
+				get CODTIT picture "@R 999999" color "W+/B,W+/N,N,W+/B"
+	read
+	set cursor OFF
+	if lastkey() = 27
+
+		exit
+
+	endif
+	if len( alltrim( CODTIT ) ) < 6 .or. CODTIT = "000000"
+
+		loop
+
+	endif
+	Marca_cli()
+
+enddo
+
+restscreen( 03,01,22,78,sc_tel )
+@ 23,01 say space( 78 ) color "W/B"
+
+return
+
+*******************
+PROCEDURE Marca_cli 
+*******************
+
+seek CODTIT
+if found()
+
+	if MARCA = "*"
+
+		s_1 = savescreen( 23,01,23,78 )
+		@ 23,01 say space( 78) color "W/B"
+		DESMARCA = "S"
+		@ 23,01    say "O cliente " + CLIENTES->COD_CLI + " j  est  marcado. " ;
+		           color "W+/B"
+		@ 23,col() say "Devo desmarc -lo ? (S/N) " color "W+/B"
+		_bell()
+		set cursor ON
+		TECLA = inkey( 0 )
+		set cursor OFF
+		if TECLA = 83 .or. TECLA = 115
+
+			replace CLIENTES->MARCA with " "
+
+		endif
+		restscreen( 23,01,23,78,s_1 )
+		return
+		
+	else
+	
+		replace CLIENTES->MARCA with "*"
+	
+	endif	
+	if CLIENTES->MARCA == "*"
+
+		if CONTA_LIN < 14
+
+			@ 06 + CONTA_LIN,32 say CLIENTES->COD_CLI
+			@ 06 + CONTA_LIN,39 say CLIENTES->NOME
+			CONTA_LIN += 1
+	
+		else
+	
+			scroll(06,32,19,69,1)
+			@ 19,32 say CLIENTES->COD_CLI + "º"
+			@ 19,39 say CLIENTES->NOME
+	
+		endif
+		
+	endif	
+	
+endif
+
+return
+
+************************
+procedure tira_marca_cli 
+************************
+
+@ 23,01 say space( 78 ) color "W/B"
+@ 23,01 say "Aguarde... estou tirando as marcas dos clientes " color "W+*/B"
+
+locate for CLIENTES->MARCA # " "
+
+do while .not. eof()
+
+	replace CLIENTES->MARCA with " "
+   continue
+
+enddo
+
+@ 23,01 say space(78) color "W/B"
+
+return
+
+*********************
+procedure Quantas_cli
+*********************
+
+SC_TEL = savescreen( 05,49,18,72 )
+
+Quadro( 05,49,09,70,"W+/R,W+/N,N,W+/R","N/N" )
+@ 06,51 say "Quantas  carteiras"	color "W+/R"
+@ 07,51 say "de cada cliente p/"	color "W+/R"
+@ 08,51 say "imprimir ?"			color "W+/R"
+
+if ETIQUETAS
+
+	Quadro( 13,49,17,70,"W+/R,W+/N,N,W+/R","N/N" )
+	@ 14,51 say "Em quantas colunas"	color "W+/R"
+	@ 15,51 say "deve  ser  feita a"	color "W+/R"
+	@ 16,51 say "impressao ?"			color "W+/R"
+	@ 23,01 say space( 78 ) color "W/B"
+	@ 23,01 say " Colunas  ->  no M¡nimo = 1  e  no M ximo = 3"	color "W+/B"
+
+endif
+S_CONF = _set( "CONFIRM" ) == "ON"
+set confirm ON
+set cursor  ON
+@ 08,68 	get QT_CADA   picture "9" ;
+			valid ( QT_CADA >= 1 )
+
+if ETIQUETAS
+
+	@ 16,68 	get N_COLUNAS picture "9" ;
+				valid ( N_COLUNAS >= 1 .and. N_COLUNAS <= 3 )
+
+endif
+read
+set cursor OFF
+restscreen( 05,49,18,72,SC_TEL )
+set confirm S_CONF
+@ 23,01 say space( 78 ) color "W/B"
+
+return
+
+*********************
+procedure Definir_cli  
+*********************
+
+SC_DEF = savescreen( 03,01,21,78 )
+SC_COR = setcolor()
+set color to "W/B"
+@ 03,01 clear to 21,78
+Quadro( 04,05,13,71,"W+/BG,W/BG,N,W+/BG","N/N" )
+@ 05,07 SAY "Tipo da impressora" COLOR "N/BG"
+@ 06,07 SAY "Padr„o 1 - Epson,  Rima,  Am‚lia PC,  Emilia PS e PC  " + ;
+				"= 120 dpi" COLOR "N/BG"
+@ 07,07 SAY "Padr„o 2 - Monica                                     " + ;
+				"= 150 dpi" COLOR "N/BG"
+@ 10,07 SAY "Se voce est  utilizando etiquetas de 89 X 23  dever " ;
+				COLOR "N/BG"
+@ 11,07 say	"digitar 6 espa‡os ou 1 para etiquetas de 79 X 23" color "N/BG"
+set cursor ON
+@ 08,07 say "Qual ‚ o padr„o da sua impressora gr fica ?   " ;
+		  color "W+/BG,W+/N,N,W+/BG" ;
+		  get P_PAD picture "9" valid ( P_PAD > 0 .AND. P_PAD < 3 ) ; 
+		  color "W+/BG,W+/N,N,W+/BG"
+@ 12,07 say "Digite os espa‡os entre as etiquetas     ?   " ;
+		  color "W+/BG,W+/N,N,W+/BG" ;
+		  get P_ESP picture "99" valid ( P_ESP < 12 ) ; 
+		  color "W+/BG,W+/N,N,W+/BG"
+read
+set cursor OFF
+save to "PADRAO.CLI" all like  "P_*"
+restscreen( 03,01,21,78,SC_DEF )
+setcolor( SC_COR )
+
+return
+
+******************************
+procedure Imprime_etiqueta_cli 
+******************************
+
+set console OFF
+set print   ON
+if ETIQUETAS
+
+	@ 23,01 say space( 78 )               color "W/B"
+	@ 23,02 say "Imprime teste ? (S/N)  " color "W+/B"
+	do while .T.
+
+		set cursor ON
+		TESTE = inkey( 0 )
+		set cursor OFF
+		if TESTE =  83 .or. TESTE = 115
+	
+			if isprinter()
+			
+				?? replicate( "X", 31 )
+				?  replicate( "X", 31 )
+				?  replicate( "X", 31 )
+				?  replicate( "X", 31 )
+				?  replicate( "X", 31 )
+				?
+				?
+		
+			endif	
+
+		else
+	
+			exit
+
+		endif
+
+	enddo
+
+endif
+@ 23,01 say space( 78 ) color "W/B"
+@ 23,01 say "Aguarde... Estou preparando o arquivo" color "W+*/B"
+set filter to CLIENTES->MARCA = "*"
+go top
+
+declare 	MTNOME[N_COLUNAS], MTCODI[N_COLUNAS], MTBARR[N_COLUNAS]
+L2 = 1
+do while .not. eof()
+
+	TECLA = inkey()
+	if TECLA = 6
+
+		_bell()
+		_bell()
+		exit
+
+	endif
+	for L1 = 1 to N_COLUNAS
+
+		MTNOME[L1] = replicate( "X", 31 )
+		MTCODI[L1] = "000000"
+		MTBARR[L1] = Cb_25( "000000" )
+
+	next
+	for L1 = 1 to N_COLUNAS
+
+		MTCODI[L1] = CLIENTES->COD_CLI
+		MTBARR[L1] = Cb_25( MTCODI[L1] )
+		MTNOME[L1] = space( _int( ( 31-len( alltrim( CLIENTES->NOME )))/2 ) ) +;
+						 alltrim( CLIENTES->NOME )
+		MTNOME[L1] = MTNOME[L1] + space( 31 - len( MTNOME[L1] ) )
+		replace CLIENTES->MARCA with " "
+		if L2 = QT_CADA
+
+			if .not. eof()
+
+				skip
+				if eof()
+
+					exit
+
+				endif
+				L2 = 1
+
+			else
+
+				exit
+
+			endif
+
+		else
+
+			L2 = L2 + 1
+
+		endif
+
+	next
+	if ETIQUETAS
+
+		Rot_imprime()
+
+	else
+
+		Rot_imprime_cart()
+
+	endif
+	
+enddo
+set print    OFF
+set console  ON
+set filter   to
+_bell()
+@ 23,01 say space( 78 ) color "W/B"
+
+return
+
+*********************
+procedure Rot_imprime 
+*********************
+
+if .not. isprinter()
+
+	@ 23,01 say space(78) color "w/b"
+	@ 23,01 say "Sua impressora n„o est  pronta ... " color "W+*/B"
+	_bell()
+	inkey( 50 )
+	@ 23,01 say space( 78 ) color "W/B"
+	return
+
+endif
+@ 23,01 say space( 78 ) color "W/B"
+@ 23,01 say "<End> - Interrompe a impress„o" color "W+*/B"
+
+***************************************** && barra de protecao superior *******
+for LB01 = 1 to 2
+
+	?? AV_1_216 + chr( 18 ) + space( 11 )     +;	&& esp. 1. col. esq. e cod.
+		chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +;	&& com. de entrada alta res.
+		replicate( chr( 192 ), K1 )		  		   && carac. da barra superior
+	for LB02 = 2 to N_COLUNAS
+
+		?? space( 22 + P_ESP + P_PAD )	      +; && esp. com padrao de impr.
+			chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +; && com. de entrada alta res.
+			replicate( chr( 192 ), K1 ) 	            && carac. da barra superior
+
+	next
+	? 
+
+next
+*******************************************************************************
+
+***************************************** && corpo  do codigo de barras *******
+for LB03 = 1 to 18
+
+	?  space( 11 ) 					         +;	&& esp. com padrao de impr.
+		chr( 27 ) + "L" + chr( K1 ) + chr( 0 )	+;	&& com. de entrada alta res.
+		MTBARR[1] 			 				 		      && codigo de barras
+	for LB04 = 2 to N_COLUNAS
+
+		?? space( 22 + P_ESP + P_PAD )	         +;	&& esp. com padrao de impr.
+			chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +; && com. de entrada alta res.
+			MTBARR[LB04]  							         && codigo de barras
+
+	next
+	?? iif( _int( LB03/2 ) = 	LB03/2, AV_1_216, AV_1_72 )
+
+next
+*******************************************************************************
+
+***************************************** && barra de protecao inferior *******
+?? AV_1_216
+for LB06 = 1 to 2
+
+	?  space( 11 ) 						      +; && esp. 1. col. esq. e cod.
+		chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +; && com. de entrada alta res.
+		replicate( chr( 003 ), K1 ) 			  	   && carac. da barra superior
+
+	for LB07 = 2 to N_COLUNAS
+
+		?? space( 22 + P_ESP + P_PAD  )           +; && esp. com padrao de impr.
+			chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +; && com. de entrada alta res.
+			replicate( chr( 003 ), K1 ) 			      && carac. da barra superior
+
+	next
+	
+next
+*******************************************************************************
+
+***************************************** && linha codigo do cliente **********
+?? chr( 27 ) + "3" + chr( 40 )
+?  ENT_NEGR + space( 12 )      		   	      && ativa negrito
+?? MTCODI[1] picture "@R 999999"	               && cod. da fita
+for LB08 = 2 to N_COLUNAS
+
+	?? space( 24 + P_ESP + P_PAD )
+	?? MTCODI[LB08] picture "@R 999999"		            && codigo da fita
+
+next
+*******************************************************************************
+
+***************************************** && linha nome do cliente ************
+?? chr( 27 ) + "3" + chr( 40 )
+?  MTNOME[1]
+for LB09 = 2 to N_COLUNAS
+
+	?? space( P_ESP ) + MTNOME[LB09]
+
+next
+*******************************************************************************
+
+?  SAI_NEGR + chr( 27 ) + "3" + chr( 55 )
+?  AV_1_6
+
+return
+
+**************************
+procedure Rot_imprime_cart
+**************************
+
+if .not. isprinter()
+
+	@ 23,01 say space(78) color "w/b"
+	@ 23,01 say "Sua impressora n„o est  pronta ... " color "W+*/B"
+	_bell()
+	inkey( 50 )
+	@ 23,01 say space( 78 ) color "W/B"
+	return
+
+endif
+@ 23,01 say space( 78 ) color "W/B"
+@ 23,01 say "<End> - Interrompe a impress„o" color "W+*/B"
+CONTA_CAR += 1
+if CONTA_CAR > 04
+
+	eject
+	CONTA_CAR = 01
+	
+endif	
+***************************************** && borda sup. da carteira ***********
+?? ENT_NEGR
+? "  +---------------------------------+---------------------------------+"
+? "  |                                 |                                 |"
+? "                                          CARTEIRA  DE  CLIENTE        "
+
+*******************************************************************************
+
+***************************************** && barra de protecao superior *******
+for LB01 = 1 to 2
+
+	? AV_1_216 + chr( 18 ) + space( 14 )         +;
+	  chr( 27 ) + "L" + chr( K1 )  + chr( 00 )   +;	
+	  replicate( chr( 192 ), K1 )
+
+next
+*******************************************************************************
+
+***************************************** && corpo  do codigo de barras *******
+for LB03 = 1 to 18
+
+	?  space( 14 )+ chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) + MTBARR[1]
+	?? iif( _int( LB03/2 ) = 	LB03/2, AV_1_216, AV_1_72 )
+
+next
+*******************************************************************************
+
+***************************************** && barra de protecao inferior *******
+?? AV_1_216
+for LB06 = 1 to 2
+
+	?  space( 14 ) + chr( 27 ) + "L" + chr( K1 ) + chr( 00 ) +;
+		replicate( chr( 003 ), K1 )
+
+next
+*******************************************************************************
+
+***************************************** && linha codigo do cliente **********
+?? chr( 27 ) + "3" + chr( 41 )
+?  space( 15 )
+?? MTCODI[1] picture "@R 999999"
+?? space( 17 ) + NOME_LOCADORA
+*******************************************************************************
+
+***************************************** && linha nome do cliente ************
+?? chr( 27 ) + "3" + chr( 05 )
+?  AV_1_6
+?
+? space( 38 ) + ENDE_LOCADORA
+? "                                      " + CIDA_LOCADORA
+? "    -------------------------------   "
+? "    " + MTNOME[1] + "   " + FONE_LOCADORA
+? "  |                                 |                                 |"
+? "  +---------------------------------+---------------------------------+"
+*******************************************************************************
+
+?  SAI_NEGR
+?
+
+return
+
+****** FORMATO DA CARTEIRINHA DE CLIENTE **************************************
+*
+* "  +-----------------------------------+-----------------------------------+"
+* "  |12345678901234567890123456789012345|12345678901234567890123456789012345|"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  | --------------------------------- |                                   |"
+* "  |      ASSINATURA DO CLIENTE        |                                   |"
+* "  |                                   |                                   |"
+* "  +-----------------------------------+-----------------------------------+"
+*
+*******************************************************************************

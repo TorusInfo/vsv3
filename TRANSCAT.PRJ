@@ -1,0 +1,97 @@
+*
+*   TRANSFERENCIA DO PODIUM PARA O VSV
+*
+CLEAR
+@ 01,01 SAY "TRANSFERENCIA DA TABELA DE CATEGORIA, PRECOS E ABONOS"
+USE "TEMPCAT.DBF"
+DECLARE cat[10]
+FOR a = 1 TO 10
+
+	cat[a] = UPPER(TEMPCAT->CATEG) &&
+	SKIP
+
+NEXT
+CLOSE
+USE "TEMPDAB.DBF"
+DECLARE dab[RECCOUNT()]
+FOR a = 1 TO RECCOUNT()
+
+	dab[a] = TEMPDAB->DIAS
+	SKIP
+
+NEXT
+CLOSE
+USE "TEMPQFT.DBF"
+DECLARE qft[RECCOUNT()]
+FOR a = 1 TO RECCOUNT()
+
+	qft[a] = TEMPQFT->QFT
+	SKIP
+
+NEXT
+CLOSE
+USE "\PODIUM\POD_14.1"
+DECLARE preco[40]
+FOR a = 1 TO 40
+
+	preco[a] = POD_14->VALOR
+	SKIP
+
+NEXT
+CLOSE
+@ 08,10 SAY "Transferindo o arquivo de Categorias e Pre‡os"
+USE "CATEGOR.TPO"
+ZAP
+APPEND 	BLANK
+REPLACE 	CATEGOR->DADOS	WITH cat[1],;
+			CATEGOR->LETRA	WITH _LEFT(CATEGOR->DADOS,1)
+
+FOR a = 1 TO 10
+
+	APPEND	BLANK
+	REPLACE 	CATEGOR->DADOS		WITH cat[a],;
+				CATEGOR->LETRA		WITH _LEFT(CATEGOR->DADOS,1),;
+				CATEGOR->PRECO_1	WITH preco[a],;
+				CATEGOR->PRECO_2	WITH preco[a+10],;
+				CATEGOR->PRECO_3	WITH preco[a+20],;
+				CATEGOR->PRECO_4	WITH preco[a+30]
+
+NEXT	
+CLOSE
+DECLARE semana[7]
+semana[1] = "DOMINGO"
+semana[2] = "SEGUNDA"
+semana[3] = "TERCA"
+semana[4] = "QUARTA"
+semana[5] = "QUINTA"
+semana[6] = "SEXTA"
+semana[7] = "SABADO"
+@ 10,10 SAY "Acertando os arquivos de promo‡”es de abonos em di rias"
+FOR a = 1 TO 7
+
+	@ 12,10 SAY SPACE(40)
+	@ 12,10 SAY semana[a]
+	USE semana[a]+".PRO"
+	ZAP
+	FOR b = 1 TO 10
+
+		APPEND 	BLANK
+		REPLACE 	DADOS	WITH cat[b],;
+					QF_1	WITH qft[a],;
+					AB_1	WITH dab[b],;
+					QF_2	WITH qft[a+07],;
+					AB_2	WITH dab[b+10],;
+					QF_3	WITH qft[a+14],;
+					AB_3	WITH dab[b+20],;
+					QF_4	WITH 99,;
+					AB_4	WITH 0
+
+
+	NEXT
+	CLOSE
+
+NEXT
+CLEAR
+SET CURSOR ON
+CLOSE ALL	
+

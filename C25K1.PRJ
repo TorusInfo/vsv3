@@ -1,0 +1,65 @@
+P_PAD = 1
+CLEAR
+DO WHILE LASTKEY() # 27
+
+	CODIGO = SPACE(12)
+	KEYBOARD 13
+	@ 08,10 SAY "PADRAO : " GET P_PAD  picture "9"
+	@ 10,10 SAY "CODIGO : " GET CODIGO 
+	READ
+	codigo = alltrim( codigo )
+	TESTADOR()
+
+ENDDO
+
+quit
+
+*****************
+function TESTADOR
+*****************
+
+IF p_pad = 2 										&& padrao monica    -> 150 dpi
+	B0 = CHR(255)									&&	 barra  fina
+	B1 = REPLICATE(CHR(255),4)					&&  barra  grossa
+	E0 = REPLICATE(CHR(000),4)					&&  espaco fino
+	E1 = REPLICATE(CHR(000),6)					&&  espaco grosso
+ELSE													&& padrao epson     -> 120 dpi
+	B0 = CHR(255)									&&	 barra  fina
+	B1 = REPLICATE(CHR(255),3)					&&  barra  grossa
+	E0 = REPLICATE(CHR(000),3)					&&  espaco fino
+	E1 = REPLICATE(CHR(000),5)					&&  espaco grosso
+ENDIF
+* 			&&  barras de inicio do codigo = B0 + E0 + B0 + E0
+*			&&  barras de final  do codigo = B1 + E0 + B0
+
+cod_bar  = B0 + E0 + B0 + E0					&&  coloca o inicio em barras
+
+T = "00110100010100111000001011010001100000111001001010"	&& tabela de padrao
+
+FOR x1 = 1 TO LEN(codigo) STEP 2				&&  loop da parte interna
+	FOR x2 = 1 TO 5
+		n1			=	VAL(MID(T,(VAL(MID(codigo,x1  ,1))*5)+x2,1))
+		n2			=	VAL(MID(T,(VAL(MID(codigo,x1+1,1))*5)+x2,1))
+		cod_bar	= 	cod_bar 	+ 	FIELDCONT( "B" + ALLTRIM( STR( n1 )) ) + ;
+										FIELDCONT( "E" + ALLTRIM( STR( n2 )) )
+	NEXT
+NEXT													&&  fim do loop
+
+cod_bar	= cod_bar + B1 + E0 + B0			&&	 coloca o final  em barras
+tam_cod	= LEN(cod_bar)							&&  calculo do tamanho do codigo
+k2 		= _int(tam_cod / 256)				&&  calculo do 2.  param. p/ imp.
+k1 		= tam_cod - 256 * k2					&&  calculo do 1.  param. p/ imp.
+*bar_sup	= REPLICATE(CHR(192),tam_cod)		&&  barra de protecao superior
+*bar_inf	= REPLICATE(CHR(003),tam_cod)		&&  barra de protecao inferior
+
+?
+?
+? " K1 = "
+?? K1  picture "@R 9999"
+?
+?
+
+
+RETURN
+*
+

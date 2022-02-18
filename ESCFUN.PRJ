@@ -1,0 +1,440 @@
+*
+*procedure Eti_cli
+*
+******************** PARA TIRAR DEPOIS *******************
+set color to "W+/B,N/W,N,W+/B"
+clear
+@ 00,00  to 24,79 double
+@ 02,00 say "Ì" + replicate("Í",78) + "¹"
+@ 22,00 say "Ì" + replicate("Í",78) + "¹"
+**********************************************************
+*
+set deleted ON
+if _file( "SYSFILE.MEM" )
+
+	restore from "SYSFILE.MEM" additive
+
+else
+
+	IMP_REL = "LPT1:"
+	
+endif	
+if .not. _file( "PADRAO.FUN" )
+
+	P_PAD = 1
+
+else
+
+	restore from "PADRAO.FUN" additive
+
+endif
+*AREA    = _select()
+*SC_ETI  = savescreen( 00,00,24,79 )
+*SC_CLI  = setcolor()
+SC_CUR  = _set( "CURSOR" ) == "ON"
+set cursor OFF
+
+******************** PARA TIRAR DEPOIS *******************
+USE "CLIENTES.DBF"
+SET INDEX TO "CLIENTES.K1" KEY CLIENTES->NOME,;
+  	          "CLIENTES.K2" KEY CLIENTES->CPF_CLI ,;
+     	       "CLIENTES.K3" KEY CLIENTES->COD_CLI 
+***********************************************************
+ORD_CLI = indexord()
+set order to 3
+seek "000000"
+NOME_LOCADORA = CLIENTES->NOME
+ENDE_LOCADORA = CLIENTES->END_RES
+CIDA_LOCADORA = CLIENTES->CID_RES
+FONE_LOCADORA = iif( empty( CLIENTES->TEL_RES ), space( 23 ),;
+							"Fone : " + CLIENTES->TEL_RES )
+close
+******************** PARA TIRAR DEPOIS ************************
+USE "FUNCION.DBF"   								&& TROCAR P/ FUNCIONION.DBF
+SET INDEX TO "FUNCION.K1" KEY FUNCION->F_CODIGO
+***************************************************************
+count to NUM_FUN
+declare 	CODFUN [ NUM_FUN ],;
+			NOMFUN [ NUM_FUN ],;
+			MARFUN [ NUM_FUN ],;
+			K_1FUN [ NUM_FUN ],;
+			GRDFUN [ NUM_FUN ]
+go top
+LOOP_1 = 00
+do while .not. eof()
+
+	LOOP_1 += 1
+	CODFUN [ LOOP_1 ] = FUNCION->F_CODIGO
+	NOMFUN [ LOOP_1 ] = FUNCION->NOME
+	MARFUN [ LOOP_1 ] = " "
+	GRDFUN [ LOOP_1 ] = MARFUN[ LOOP_1 ] + "º" + CODFUN[ LOOP_1 ] + "º" +;
+							  NOMFUN[ LOOP_1 ] 	
+	if P_PAD = 1
+
+		K_1FUN [ LOOP_1 ] = iif( len( alltrim( CODFUN[LOOP_1] )) = 2, 43, 71 )
+
+	else
+
+		K_1FUN [ LOOP_1 ] = iif( len( alltrim( CODFUN[LOOP_1] )) = 2, 54, 89 )
+
+	endif
+	if .not. eof()
+	
+		skip
+	
+	endif		
+
+enddo	
+QT_CADA   = 01
+CONTA_CAR = 00
+N_COLUNAS = 01
+AV_1_216	 = chr( 27 ) + "3" + chr( 01 )		&&  seta espacamento de   1/216 "
+AV_1_72	 = chr( 27 ) + "3" + chr( 03 )		&&  seta espacamento de   1/72  "
+AV_1_6	 = chr( 27 ) + "3" + chr( 36 )		&&	 seta espacamento de   1/6   "
+ENT_NEGR  = chr( 27 ) + "E"						&&  ativa negrito
+SAI_NEGR	 = chr( 27 ) + "F"						&&  desativa negrito
+declare     QUEM[4], Q_LL[4]
+QUEM[1]   = "Fazer lista- func."
+QUEM[2]   = "Carteira"         
+QUEM[3]   = "Tirar marcas-todas"
+QUEM[4]   = "Retornar"
+Q_LL[1]   = "F"
+Q_LL[2]   = "C"
+Q_LL[3]   = "T"
+Q_LL[4]   = "R"
+do while .T.
+
+	clear typeahead
+	set color to "W+/B,N/W,N,W+/B"
+	@ 03,01 clear to 21,78
+	Quadro( 03,02,05,26,"N/GR,N/GR,N,N/GR","N/N" )
+	@ 04,03 say "CARTEIRA DE FUNCIONARIO" color "W+/GR"
+	Quadro( 15,02,20,22,"W+/R,N/R,N,W+/R","N/N" )
+	popup	window	16,03,19,21;
+			to			OP;
+			options	QUEM;
+			hilite 	Q_LL,"GR+/R";
+			color 	"W+/R,N/W,N,W+/R"
+	if 	OP = 1
+
+		if lastkey() # 27
+
+			Marca_func()
+
+		endif
+
+	elseif OP = 2
+
+		Quantas_vezes()
+
+		if lastkey() # 27
+
+			imprime_cart_func()		
+
+		endif
+
+	elseif OP = 3
+
+		Definir_fun()
+
+	else
+
+		exit
+
+	endif
+
+enddo
+
+*select "CLIENTES"
+*set order to ORD_CLI
+********************* DEVOLVER OS ARQUIVOS , CORES , STATUS DE COMO ENTROU
+set color  to
+set cursor SC_CUR
+clear
+close all
+quit
+
+********************
+procedure Marca_func 
+********************
+
+sc_tel = savescreen( 03,01,22,78 )
+clear typeahead
+CONTA_LIN = 00
+ALTURA    = iif( NUM_FUN > 11, 20, NUM_FUN + 9 )
+Quadro(08, 40, ALTURA, 69, "W+/BG,N/W,N,W+/BG", "N/N" )
+@ 08,42     say "Ë"
+@ 08,47     say "Ë"
+@ ALTURA,42 say "Ê"
+@ ALTURA,47 say "Ê"
+do while .T.
+
+	popup	window 	09, 41, ALTURA - 1, 68;
+			to     	ESC_FUN;
+			options	GRDFUN;
+			hilite   GRDFUN, "N/BG";
+			color		"W+/BG,N/W,W+/BG,W+/BG";
+			function Poe_marca()
+	if ESC_FUN < 1
+	
+		exit
+		
+	endif							
+
+enddo
+restscreen( 03,01,22,78,sc_tel )
+@ 23,01 say space( 78 ) color "W/B"
+
+return
+
+******************
+function Poe_marca
+******************
+
+parameters MODO, ELEMENTO
+
+private    TECLA
+
+TECLA = lastkey()
+if TECLA == 27
+
+	return 0
+
+elseif TECLA == 13
+
+	if MARFUN [ ELEMENTO ] = " "
+
+		MARFUN [ ELEMENTO ] = "*"
+		GRDFUN [ ELEMENTO ] = stuff( GRDFUN [ ELEMENTO ], 1, 1, "*" )
+
+	else
+
+		MARFUN [ ELEMENTO ] = " "
+		GRDFUN [ ELEMENTO ] = stuff( GRDFUN [ ELEMENTO ], 1, 1, " " )
+
+	endif
+	keyboard 24
+	return 4
+
+endif
+
+return
+
+***********************
+procedure quantas_vezes
+***********************
+
+SC_TEL = savescreen( 05,49,18,72 )
+
+Quadro( 05,49,09,70,"W+/R,W+/N,N,W+/R","N/N" )
+@ 06,51 say "Quantas  carteiras"	color "W+/R"
+@ 07,51 say "p/ cada func. devo"	color "W+/R"
+@ 08,51 say "imprimir ?"			color "W+/R"
+
+S_CONF = _set( "CONFIRM" ) == "ON"
+set confirm ON
+set cursor  ON
+@ 08,68 	get QT_CADA   picture "9" valid ( QT_CADA >= 1 )
+read
+set cursor OFF
+restscreen( 05,49,18,72,SC_TEL )
+set confirm S_CONF
+N_COLUNAS = 01
+@ 23,01 say space( 78 ) color "W/B"
+
+return
+
+*********************
+procedure Definir_fun  
+*********************
+
+SC_DEF = savescreen( 03,01,21,78 )
+SC_COR = setcolor()
+set color to "W/B"
+@ 03,01 clear to 21,78
+Quadro( 04,05,10,71,"W+/BG,W/BG,N,W+/BG","N/N" )
+@ 05,07 SAY "Tipo da impressora" COLOR "N/BG"
+@ 06,07 SAY "Padr„o 1 - Epson,  Rima,  Am‚lia PC,  Emilia PS e PC  " + ;
+				"= 120 dpi" COLOR "N/BG"
+@ 07,07 SAY "Padr„o 2 - Monica                                     " + ;
+				"= 150 dpi" COLOR "N/BG"
+set cursor ON
+@ 08,07 say "Qual ‚ o padr„o da sua impressora gr fica ?   " ;
+		  color "W+/BG,W+/N,N,W+/BG" ;
+		  get P_PAD picture "9" valid ( P_PAD > 0 .AND. P_PAD < 3 ) ; 
+		  color "W+/BG,W+/N,N,W+/BG"
+read
+set cursor OFF
+save to "PADRAO.FUN" all like  "P_*"
+restscreen( 03,01,21,78,SC_DEF )
+setcolor( SC_COR )
+
+return
+
+***************************
+procedure imprime_cart_func 
+***************************
+
+set console OFF
+set print   ON
+@ 23,01 say space( 78 ) color "W/B"
+@ 23,01 say "Aguarde... Estou preparando o arquivo" color "W+*/B"
+
+declare 	MTNOME[N_COLUNAS], MTCODI[N_COLUNAS], MTBARR[N_COLUNAS],MTK[N_COLUNAS]
+for LOOP_1 = 1 to NUM_FUN
+
+	TECLA = inkey()
+	if TECLA = 6
+
+		_bell()
+		_bell()
+		exit
+
+	endif
+	if MARFUN [ LOOP_1 ] == "*"
+
+		for L1 = 1 to N_COLUNAS
+
+			MTNOME[L1] = replicate( "X", 20 )
+			MTCODI[L1] = "00"
+			MTBARR[L1] = Cb_25( "00" )
+			MTK   [L1] = iif( P_PAD = 1, 43, 54 )
+		next
+		for L1 = 1 to N_COLUNAS
+
+			MTCODI[L1] = alltrim( CODFUN [ LOOP_1 ] )
+			if     len( MTCODI[L1] ) = 1
+
+				MTCODI[L1] = _left( "0" + MTCODI[L1], 4 )
+
+			elseif len( MTCODI[L1] ) = 3
+
+				MTCODI[L1] = _left( "0" + MTCODI[L1], 4 )
+
+			endif
+			MTBARR[L1] = Cb_25( MTCODI[L1] )
+			MTNOME[L1] = space( _int( ( 31-len( alltrim( NOMFUN[LOOP_1])))/2))+;
+							 alltrim( NOMFUN[LOOP_1] )
+			MTNOME[L1] = MTNOME[L1] + space( 31 - len( MTNOME[L1] ) )
+			MTK   [L1] = K_1FUN [ LOOP_1 ]   
+			MARFUN[ LOOP_1] = " "
+		next
+		for L2 = 1 TO QT_CADA
+
+			Rot_imprime_cart()
+
+		next
+
+	endif
+
+next
+set print    OFF
+set console  ON
+set filter   to
+_bell()
+@ 23,01 say space( 78 ) color "W/B"
+
+return
+
+**************************
+procedure Rot_imprime_cart
+**************************
+
+if .not. isprinter()
+
+	@ 23,01 say space(78) color "w/b"
+	@ 23,01 say "Sua impressora n„o est  pronta ... " color "W+*/B"
+	_bell()
+	inkey( 50 )
+	@ 23,01 say space( 78 ) color "W/B"
+	return
+
+endif
+@ 23,01 say space( 78 ) color "W/B"
+@ 23,01 say "<End> - Interrompe a impress„o" color "W+*/B"
+CONTA_CAR += 1
+if CONTA_CAR > 04
+
+	eject
+	CONTA_CAR = 01
+	
+endif	
+***************************************** && borda sup. da carteira ***********
+?? ENT_NEGR
+? "  +---------------------------------+---------------------------------+"
+? "  :                                 :                                 :"
+? "                                          F U N C I O N A R I O        "
+
+*******************************************************************************
+
+***************************************** && barra de protecao superior *******
+for LB01 = 1 to 2
+
+	? AV_1_216  + space( 14 )                 +;
+	  chr( 27 ) + "L" + chr( MTK[1] ) + chr( 00 ) +;	
+	  replicate( chr( 192 ), MTK[1] )
+
+next
+*******************************************************************************
+
+***************************************** && corpo  do codigo de barras *******
+for LB03 = 1 to 18
+
+	?  space(14) + chr( 27 ) + "L" + chr( MTK[1] ) + chr( 00 ) + MTBARR[1]
+	?? iif( _int( LB03/2 ) = 	LB03/2, AV_1_216, AV_1_72 )
+
+next
+*******************************************************************************
+
+***************************************** && barra de protecao inferior *******
+?? AV_1_216
+for LB06 = 1 to 2
+
+	?  space( 14 ) + chr( 27 ) + "L" + chr( MTK[1] ) + chr( 00 ) +;
+		replicate( chr( 003 ), MTK[1] )
+
+next
+*******************************************************************************
+
+***************************************** && linha codigo do cliente **********
+?? chr( 27 ) + "3" + chr( 41 )
+?  space( 14 )
+?? MTCODI[1] picture iif( len( alltrim( MTCODI[1] ) ) = 4, "@R 9999", "@R 99" )
+?? space( iif( len( alltrim( MTCODI[1] ) ) = 4, 22, 20 ) ) + NOME_LOCADORA
+*******************************************************************************
+
+***************************************** && linha nome do cliente ************
+?? chr( 27 ) + "3" + chr( 05 )
+?  AV_1_6
+?
+? space( 38 ) + ENDE_LOCADORA
+? "                                      " + CIDA_LOCADORA
+? "    -------------------------------   "
+? "    " + MTNOME[1] + "   " + FONE_LOCADORA
+? "  :                                 :                                 :"
+? "  +---------------------------------+---------------------------------+"
+*******************************************************************************
+
+?  SAI_NEGR
+?
+
+return
+*
+****** FORMATO DA CARTEIRINHA DE CLIENTE **************************************
+*
+* "  +-----------------------------------+-----------------------------------+"
+* "  |12345678901234567890123456789012345|12345678901234567890123456789012345|"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  |                                   |                                   |"
+* "  | --------------------------------- |                                   |"
+* "  |      ASSINATURA DO CLIENTE        |                                   |"
+* "  |                                   |                                   |"
+* "  +-----------------------------------+-----------------------------------+"
+*
+*******************************************************************************

@@ -1,0 +1,83 @@
+*
+*   TRANSFERENCIA DO PODIUM PARA O VSV
+*
+set date "DMY"
+SET DECIMALS TO 6
+CLEAR
+@ 01,01 SAY "TRANSFERENCIA DO ARQUIVO DE FITAS"
+SELECT 1
+USE "\PODIUM\POD_26.1" && 
+GO BOTTOM
+INDEXADOR = POD_26->INDEXADOR
+CLOSE
+SELECT 1
+USE "\PODIUM\POD_12.1"
+num_total = RECCOUNT()
+num_atual = 1
+SELECT 2
+USE "\PODIUM\POD_20.1"
+SET INDEX TO "POD_20.K1" KEY POD_20->CODTITU
+SELECT 3
+USE "FITAS"
+ZAP
+RUN "DEL FITAS.K*"
+set cursor OFF
+clear
+@ 08,10	say "Transferindo o arquivo de fitas "
+@ 12,10	say "N£mero  de  fitas  existentes      "
+@ 12,46	say num_total PICTURE "#####"
+@ 14,10	say "N£mero  de  fitas  j  transferidas "
+select "POD_12"
+do while .not. eof()
+
+	select "POD_20"
+	seek POD_12->CODTITU
+	if found()
+
+		DIA_COMP = POD_20->DATA_ENTR
+
+	else
+
+		DIA_COMP = _DATE()
+
+	endif
+   select "FITAS"
+   append blank
+	@ 14,46 	say NUM_ATUAL picture "#####"
+	CODIF =  POD_12->CODTITU + POD_12->COPIA + POD_12->VOLUME + POD_12->DIGITO
+	PRECO_FITA = POD_12->PRECO * INDEXADOR
+   REPLACE 	FITAS->CODFITA 	with CODIF,;
+           	FITAS->T_CODIGO 	with POD_12->CODTITU,;
+				FITAS->DATA_COMP	with DIA_COMP,;
+	         FITAS->DISPONIVEL with "S",;
+	         FITAS->SEQUENCIAL with _right( alltrim( POD_12->COD_ORIG ), 4 ),;
+           	FITAS->CONCINE 	with POD_12->CONCINE,;
+           	FITAS->CUSTO 		with PRECO_FITA,;
+				FITAS->VALOR_IND  with POD_12->PRECO,;
+           	FITAS->RECEBIDO 	with POD_12->AMORTIZADO,;
+				FITAS->CLI_1		with "000000",;
+				FITAS->CLI_2		with "000000",;
+				FITAS->CLI_3      with POD_12->CODCLIE,;
+				FITAS->USO			with " ",; &&
+				FITAS->ETIQUETA	with " "
+   REPLACE 	FITAS->COD_CLI    with POD_12->CODCLIE,;
+           	FITAS->DATA_RET 	with POD_12->DATA_R,;
+				FITAS->DATA_PREV 	with ctod( POD_12->VOLTA ),;
+				FITAS->VALOR      with POD_12->VALOC,;
+				FITAS->DESCONTO   with ( POD_12->DESCONTO ) * 100,;
+				FITAS->LOJA       with "001"
+	select  "pod_12"
+   skip
+	NUM_ATUAL = NUM_ATUAL + 1
+
+enddo          
+for A = 1 to 10
+
+	tone( 1500 +200 * A, 8 )
+
+next
+clear
+close all
+set cursor ON
+
+

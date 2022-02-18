@@ -1,0 +1,550 @@
+function saet
+PUBLIC FCODFUNC,SAIDA_NORMAL,imp_len,rzico,ulc,operador
+rzico=.f.
+SAIDA_NORMAL=.F.
+FCODFUNC="SJTO"
+SET COLOR TO 'W+/B'
+@ 00,00 TO 24,79 DOUBLE
+SCROLL(1,1,23,78,0)
+@ 02,00 SAY 'Ã'+REPLICATE('Õ',78)+'π'
+@ 01,01 SAY '   T O R U S   ∫         Agenda Eletrìnica Torus              ∫ ESC - Retorna'
+@ 00,16 SAY 'À'
+@ 02,16 SAY ' '
+@ 00,63 SAY 'À'
+@ 02,63 SAY ' '
+@ 22,00 SAY 'Ã'+REPLICATE('Õ',78)+'π'
+
+if network()
+	NOME_NET =alltrim(netname())
+	set exclusive off
+	@ 23,02 SAY "MultiUser version "+ "Terminal name = > "+ NOME_NET 
+else
+	set exclusive on
+endif
+SET DATE "DDMMYYYY"
+SET CENTURY ON
+SET HOURS TO 24
+SET POINT TO ","
+SET SEPARATOR TO "."
+SET CURSOR .F.
+set mouse on
+PUBLIC SCMEN,MZT,ARQ_TXT,ARQ_DBF
+saida_normal=.F.
+fcodfunc="SJTO"
+
+ARQ_TXT="HELP.TED"
+ARQ_DBF="HELP.DBF"
+
+
+SET RECBUFFER TO 0
+
+
+scmen=SAVESCREEN(03,01,21,78)
+
+
+RESTORE FROM "DADLOC.MEM" additive
+
+
+rCHECK_NOM = 0
+FOR L1 = 1 TO LEN(NOM_LOC)
+	rCHECK_NOM = rCHECK_NOM +300-ASC(MID(NOM_LOC,L1,1))
+NEXT
+
+checa_ok1 = iif(check_nom = rcheck_nom ,.T.,.F.)
+
+rCHECK_SERIE = 0
+FOR L1 = 1 TO LEN(NUM_SERIE)
+	rCHECK_SERIE = rCHECK_SERIE +300-ASC(MID(NUM_SERIE,L1,1))
+NEXT
+
+checa_ok2 = iif(check_serie = rcheck_serie ,.T.,.F.)
+	
+rCHECK_DATA = _int(_sqrt((YEAR(VAL_DATA)*10000)+(MONTH(VAL_DATA)*100)+DAY(VAL_DATA)))
+
+checa_ok3 = iif(check_data = rcheck_data ,.T.,.F.)
+
+val_data2 = val_data-10
+
+IF _date() < VAL_DATA .and. checa_ok3 .and. checa_ok2 .and. checa_ok1 .and. _file("\dos\wipefile.exe") 
+
+	@ 14,10 SAY NOM_LOC 									COLOR "GR+/B"
+	@ 18,10 SAY "Nß de SÇrie : "+NUM_SERIE			COLOR "GR+/B"
+	@ 08,10 SAY NOM_SISTEMA
+	@ 08,COL()+2 SAY NOM_SIS_DATA
+	@ 10,10 SAY "Aguarde ..."							COLOR "W+*/B"
+
+	IF _date()> val_data2 
+
+		@ 14,10 SAY NOM_LOC 									COLOR "GR+/B"
+		FCODFUNC="SJTO"
+		@ 18,10 SAY "Nß de SÇrie : "+NUM_SERIE			COLOR "GR+/B"
+		@ 08,10 SAY NOM_SISTEMA
+		@ 08,COL()+2 SAY NOM_SIS_DATA
+		@ 10,10 SAY "Senha v†lida por mais 10(DEZ) dias ... Revalide-a "	COLOR "W+/B"
+		@ 12,10 SAY "CONTATE  O SUPORTE TECNICO"					COLOR "W+*/B"
+		INKEY(100)
+
+	ENDIF
+	
+ELSE
+*	CLEAR
+*	DELETE FILE "DADLOC.MEM"
+	@ 14,10 SAY NOM_LOC 									COLOR "GR+/B"
+	FCODFUNC="SJTO"
+*	@ 16,10 SAY "Loja : "+NUM_LOJA					COLOR "GR+/B"	
+	@ 18,10 SAY "Nß de SÇrie : "+NUM_SERIE			COLOR "GR+/B"
+	@ 08,10 SAY NOM_SISTEMA
+	@ 08,COL()+2 SAY NOM_SIS_DATA
+*	"S A E T  1.0  09/07/91"			COLOR "W+/B"
+	@ 10,10 SAY "Problemas com o arquivo de entrada ..."	COLOR "W+/B"
+	@ 12,10 SAY "CONTATE  O SUPORTE TECNICO"					COLOR "W+*/B"
+	INKEY(100)
+	QUIT
+ENDIF
+
+***************************************************************
+
+set key 287 to nome_rel1()
+set key -20 to ativa_fun()
+SET KEY -1 TO DESCANSO()
+SET KEY 302 TO CALC_TOR()
+SET KEY 288 TO CALEND()
+SET KEY 28 TO AJUDA()
+set deleted  ON
+set softseek ON
+SET TYPEAHEAD TO 50 
+
+if _file( "valdoc.MEM" )
+
+   restore from "valdoc.MEM" additive
+
+endif
+
+if _file( "valind.MEM" )
+
+   restore from "valind.MEM" additive
+
+endif
+
+
+if _file( "SYSFILE.MEM" )
+
+
+   restore from "SYSFILE.MEM" additive
+*	IMP_EJETA  = iif( IMP_EJETA == .T., "S", "N" )
+
+else
+
+   IMP_DEV    = "BOLETO.PRN"             && Dispositivo de sa°da do relat¢rio 
+   IMP_RET    = "BOLETO.PRN"             && Dispositivo de sa°da do relat¢rio 
+   IMP_REL    = "RELATOR.PRN"             && Dispositivo de sa°da do relat¢rio 
+   IMP_ATIVA  =  0                        && ATIVA IMPRESSORA
+   IMP_LIN    =  7
+   IMP_COMP   = 15                        && Ativa    caracteres comprimidos 
+   IMP_C_COMP = 18								&& Desativa caracteres comprimidos
+   IMP_EXPA   = 14								&& Ativa    caracteres expandidos
+   IMP_C_EXPA = 20                        && Desativa caracteres expandidos 
+   IMP_EJETA  = "N"                       && Decide se na £ltima p†gina 
+   IMP_TOP    =  3                        && Margem Superior 
+   IMP_BOT    =  5                        && Margem Inferior  
+   IMP_LEFT   =  0                        && Margem Esquerda 
+   IMP_LARG   = 80
+   IMP_LEN    = 66                        && Largura do Texto 
+   IMP_COL    = 80                        && Largura da impressora 80 ou 132 
+   IMP_MICRO  = 1
+   IMP_TIPO   = "E"
+   IMP_FOL    ="S"                        && folow-up de correspondencia
+   IMP_REM    ="S"                        && impressao do rementente no cadastro
+   if imp_tipo="E"
+      a=chr(15)
+      imp_comp=a
+      a=chr(18)
+      imp_c_comp=a
+      a=chr(14)
+      imp_expa=a
+      a=chr(20)
+      imp_c_expa=a
+   elseif imp_tipo="H"
+      * comprimido
+      *portrait
+      a=chr(27)+chr(38)+chr(108)+chr(48)+chr(79)
+      *conj. de caracteres
+      b=chr(27)+chr(40)+chr(49)+chr(50)+chr(85)
+      *espacamento
+      c=chr(27)+chr(40)+chr(115)+chr(48)+chr(80)
+      *pitch
+      d=chr(27)+chr(40)+chr(115)+"15"+chr(72)
+      *formato
+      e=chr(27)+chr(40)+chr(115)+chr(52)+chr(49)+chr(48)+chr(49)+chr(84)
+      imp_comp=a+b+c+d+e
+      * normal
+      *portrait
+      a=chr(27)+chr(38)+chr(108)+chr(48)+chr(79)
+      *conj. de caracteres
+      b=chr(27)+chr(40)+chr(49)+chr(50)+chr(85)
+      *espacamento
+      c=chr(27)+chr(40)+chr(115)+chr(48)+chr(80)
+      *pitch
+      d=chr(27)+chr(40)+chr(115)+"12"+chr(72)
+      *formato
+      e=chr(27)+chr(40)+chr(115)+chr(52)+chr(49)+chr(48)+chr(49)+chr(84)
+      *economode
+      a3=chr(27)+chr(40)+chr(115)+chr(49)+chr(81)
+      imp_c_comp=a+b+c+d+e+a3
+      *expandido
+      *portrait
+      a=chr(27)+chr(38)+chr(108)+chr(48)+chr(79)
+      *conj. de caracteres
+      b=chr(27)+chr(40)+chr(49)+chr(50)+chr(85)
+      *espacamento
+      c=chr(27)+chr(40)+chr(115)+chr(48)+chr(80)
+      *pitch
+      d=chr(27)+chr(40)+chr(115)+"8"+chr(72)
+      *formato
+      e=chr(27)+chr(40)+chr(115)+chr(52)+chr(49)+chr(48)+chr(49)+chr(84)
+      imp_expa=a+b+c+d+e
+      imp_c_expa=imp_c_comp
+   endif
+
+   SAVE TO "SYSFILE.MEM" ALL LIKE "IMP_*"
+
+
+
+endif 
+
+*******************************
+*     MZT = tempo de inkey(mzt)
+*******************************
+
+if IMP_MICRO = 1 && XT
+   MZT = 10
+elseif IMP_MICRO = 2 && AT
+   MZT = 20
+elseif IMP_MICRO = 3 && 386
+   MZT = 30
+ENDIF
+SET RECBUFFER TO 0
+
+OPEN("CADTOR")
+OPEN("AGETOR")
+OPEN("CADTORA")
+*OPEN("PROCESSO")
+*OPEN("ANDAMENT")
+*OPEN("AGEPROC")
+*OPEN("CADACAO")
+OPEN("FUNCION")
+
+
+
+@ 10,02 SAY SPACE(60) COLOR "W/B"
+
+restSCREEN(03,01,21,78,scmen)
+
+
+
+
+PUBLIC col_cursor, lin_cursor, antes_cor,;
+		 tipo_curs, tipo_conf, tipo_seek,;
+		 tipo_dele, qual_area, qual_ordem, acesso
+
+
+
+
+FCODFUNC="SJTO"
+FNOME="TORUS INFORMATICA"
+
+
+SELECT "FUNCION"
+SET ORDER TO 1
+SEEK FCODFUNC
+IF .NOT. FOUND() .OR. EOF()
+	APPEND BLANK
+	REPLACE FUNCION->F_CODIGO WITH FCODFUNC
+	REPLACE FUNCION->SENHA WITH "NARF"
+	REPLACE FUNCION->ACESSO WITH "9"
+	REPLACE FUNCION->NOME WITH FNOME
+ENDIF
+
+
+ACESSO="0"
+fnome="SEM OPERADOR"
+operador=alltrim(fnome)
+PUBLIC erro_ocor
+
+erro_ocor = .F.
+
+SELECT 50
+USE "menu"
+
+CLEAR TYPEAHEAD
+
+SELECT "MENU"
+
+DO WHILE .T.
+   @ 23,47 say "Operador : "+operador color "W+/B"
+   pmenu("1") 
+   encerra()
+ENDDO
+
+QUIT
+*
+**********************                 && A funáÑo CriticalError aqui declarada
+function CriticalError NOSWAP                && evitar† a inclusÑo da funáÑo original
+**********************                 && da biblioteca do JOINER.
+
+parameters ERRO                        && C¢digo do erro ocorrido
+
+private AREA_VIDEO,;                   && èrea de v°deo a ser armazenada
+        QUAL_ACAO, ;                   && AáÑo a ser tomada (pelo usu†rio)
+        MENSAGEM,  ;                   && Mensagem de erro
+        RETORNO                        && Valor de Retorno
+
+*
+* ObtÇm a mensagem correspondente ao erro.
+*
+
+_bell()
+_bell()
+_bell()
+_bell()
+_bell()
+_bell()
+
+
+if network()
+
+	NOME_NET = netname()
+
+		if neterr()
+
+			mens_erro(" Erro de acesso a REDE "+NOME_NET)
+			inkey(0)		
+
+		endif
+endif
+
+
+if ERRO == 0
+
+   MENSAGEM = "Disco Protegido contra gravaáÑo"
+
+elseif ERRO == 1
+
+   MENSAGEM = "Unidade Desconhecida"
+
+elseif ERRO == 2
+
+   MENSAGEM = "Drive nÑo responde"
+
+elseif ERRO == 3
+
+   MENSAGEM = "Comando interno do DOS desconhecido"
+
+elseif ERRO == 4
+
+   MENSAGEM = "Erro de dados (CRC)"
+
+elseif ERRO == 5
+
+   MENSAGEM = "Tamanho da estrutura solicitada inv†lido"
+
+elseif ERRO == 6
+
+   MENSAGEM = "Erro no acesso ao cilindro"
+
+elseif ERRO == 7
+
+   MENSAGEM = "Formato de Disco Desconhecido"
+
+elseif ERRO == 8
+
+   MENSAGEM = "Setor nÑo encontrado"
+
+elseif ERRO == 9
+
+   MENSAGEM = "Impressora sem papel"
+
+elseif ERRO == 10
+
+   MENSAGEM = "Erro ao enviar dados para o dispositivo"
+
+elseif ERRO == 11
+
+   MENSAGEM = "Erro ao ler dados do dispositivo"
+
+elseif ERRO == 12
+
+   MENSAGEM = "Falha geral do Dispositivo"
+
+elseif ERRO == 15
+
+   MENSAGEM = "Troca de disco inv†lida"
+
+elseif ERRO == 15
+
+   MENSAGEM = "Erro desconhecido. C¢digo " + str( ERRO, 3 )
+
+endif
+                                       && Salva †rea do v°deo
+AREA_VIDEO = savescreen( 08, 18, 17, 63 )
+
+                                       && Monta a sombra
+at  9, 20, 17, 63 box replicate( chr( 219 ), 9 )
+
+explode(  8, 18, 16, 61, "D" )         && Monta a moldura
+
+at 12, 18 say chr( 199 ) + replicate( chr( 196 ), 42 ) + chr( 182 )
+
+                                       && Exibe mensagem de erro
+at  8, 29 say "Erro Cr°tico Ocorrido !"
+
+at 09, 29 say "*****  AtenáÑo  *****" color "W+*/R"
+
+at 12, 33 say "Selecione AáÑo"
+
+TAMANHO = len( MENSAGEM )              && ObtÇm o tamanho da Mensagem
+                                       && Exibe mensagem descritiva do erro
+at 10, _int( ( 80 - TAMANHO ) / 2 ) say MENSAGEM
+
+at 14, 20 prompt " Ignorar "
+at 14, 30 prompt " Repetir "
+at 14, 40 prompt " Encerrar "
+at 14, 52 prompt " Falhar "
+
+menu to QUAL_ACAO                      && Aguarda seleáÑo de uma opáÑo
+
+                                       && Restaura a †rea de v°deo
+restscreen(  8, 18, 17, 63, AREA_VIDEO )
+
+*
+* Retornar† ao controle da aplicaáÑo de acordo com a opáÑo escolhida
+*
+
+if QUAL_ACAO == 1 .or. QUAL_ACAO == 0  && Ignorou ou Abortou
+
+   RETORNO =  0
+
+elseif QUAL_ACAO == 2                  && Tenta novamente
+
+   RETORNO =  1
+
+elseif QUAL_ACAO == 3                  && Aborta e retorna ao DOS
+
+   RETORNO =  2
+
+else
+
+   RETORNO =  3                        && Assume o erro como Falha
+
+endif
+
+return RETORNO                         && Retorna a aáÑo a ser tomada.
+
+
+*****< Fim : ECRITICA.prj >*****
+********************************
+*FUNCTION Rede NOSWAP
+********************************
+
+*area_rede = _select()
+
+*if network()
+*
+*	if !used(area_rede)
+*
+*		FLOCK(area_rede)
+*		
+*		_lock(area_rede)
+*
+*	else
+*
+*		if neterr()
+*
+*			mens_erro(" Erro registro/arquivo esta sendo acessado por outro usuario ")
+*
+*		endif
+*	
+*	endif
+*	
+*
+*endif
+
+
+
+*return 
+*
+
+**************
+FUNCTION TRAVA noswap
+**************
+
+
+area_rede = _select()
+
+if network() &&.AND. !NETERR()
+
+	if used(area_rede)
+
+*		FLOCK(area_rede)
+		
+		rlock(area_rede)
+
+		RZICO = .T.
+
+	endif
+
+	if !rlock()
+		mens_erro("Este registro estÜ sendo acessado por outro usuÜrio - nÑo gravado ",10,"w+*/b")
+		RZICO = .F.
+	endif
+
+
+*else 
+
+*		mens_erro(" Erro registro/arquivo esta sendo acessado por outro usuario ")
+
+*		RZICO = .F.
+
+endif
+
+
+
+return  RZICO
+
+*
+***************
+FUNCTION DTRAVA noswap
+***************
+
+
+area_rede = _select()
+
+if network() && .AND. !neterr()
+
+	if used(area_rede)
+
+
+		unlock
+
+		
+		RZICO = .T.
+
+	endif
+
+	if neterr()
+		mens_erro(" Erro registro/arquivo esta sendo acessado por outro usuario ")
+		RZICO = .F.
+	endif
+*ELSE
+
+*	mens_erro(" Erro registro/arquivo esta sendo acessado por outro usuario ")
+
+*		RZICO = .F.
+
+endif
+
+commit
+
+
+return  RZICO
+*

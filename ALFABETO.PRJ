@@ -1,0 +1,384 @@
+******************************************************************************
+AV_1_216	 = chr( 27 ) + "3" + chr( 01 )		&&  seta espacamento de   1/216 "
+AV_1_72	 = chr( 27 ) + "3" + chr( 03 )		&&  seta espacamento de   1/72  "
+AV_1_6	 = chr( 27 ) + "3" + chr( 36 )		&&	 seta espacamento de   1/6   "
+ENT_NEGR  = chr( 27 ) + "E"						&&  ativa negrito
+SAI_NEGR	 = chr( 27 ) + "F"						&&  desativa negrito
+P_PAD     = 1
+******************************************************************************
+declare MTCOD [ 36 ], MTBAR [ 36 ], MTTAM [ 36 ], MTK1 [ 36 ], MTK2 [ 36 ]
+clear
+for LOOP_1 = 1 to 26
+
+	MTCOD [ LOOP_1 ] = chr(   LOOP_1 + 64 )
+	MTBAR [ LOOP_1 ] = Cb_39( MTCOD [ LOOP_1 ], P_PAD )
+	MTTAM [ LOOP_1 ] = len(   MTBAR [ LOOP_1 ] )
+	MTK2  [ LOOP_1 ] = _int(  MTTAM [ LOOP_1 ] / 256 )		
+	MTK1  [ LOOP_1 ] =        MTTAM [ LOOP_1 ] - 256 * MTK2 [ LOOP_1 ]
+
+next
+for LOOP_1 = 27 to 36
+
+	MTCOD [ LOOP_1 ] = chr(   LOOP_1 + 21 )
+	MTBAR [ LOOP_1 ] = Cb_39( MTCOD [ LOOP_1 ], P_PAD )
+	MTTAM [ LOOP_1 ] = len(   MTBAR [ LOOP_1 ] )
+	MTK2  [ LOOP_1 ] = _int(  MTTAM [ LOOP_1 ] / 256 )		
+	MTK1  [ LOOP_1 ] =        MTTAM [ LOOP_1 ] - 256 * MTK2 [ LOOP_1 ]
+
+next
+set console  OFF
+set print    ON
+Imprime_folha()
+set console  ON
+set print    OFF
+quit
+
+**********************
+function Imprime_folha 
+**********************
+                
+? space( 10 ) + replicate( "=", 20 ) + " TORUS INFORMATICA LTDA " +;
+                replicate( "=", 19 )
+?
+?
+** PRIMEIRA LINHA *** DA LETRA [ A ] ATE A LETRA [ F ]
+***************************************** && barra de protecao superior *******
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 01 ] ) + chr( MTK2[ 01 ] ) +;
+  	  replicate( chr( 192 ), MTTAM[ 01 ] )
+	for LOOP_2 = 02 to 06
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 192 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && corpo  do codigo de barras *******
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1[ 1 ] ) + chr( MTK2[ 1 ] ) +;
+	   MTBAR[ 01 ]
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+	for LOOP_2 = 02 to 06
+
+		?? space(05) + chr( 27 ) + "L" + chr( MTK1[ LOOP_2 ] ) + ;
+		   chr( MTK2 [ LOOP_2 ] ) + MTBAR[ LOOP_2 ]
+
+	next
+
+next
+*******************************************************************************
+***************************************** && barra de protecao inferior *******
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 01 ] ) + chr( MTK2[ 01 ] ) +;
+  	  replicate( chr( 003 ), MTTAM[ 01 ] )
+	for LOOP_2 = 02 to 06
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 003 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && linha codigo do cliente **********
+?  AV_1_6 + ENT_NEGR
+?  space( 11 ) + MTCOD [ 01 ] + space( 10 ) + MTCOD [ 02 ] +;
+   space( 11 ) + MTCOD [ 03 ] + space( 10 ) + MTCOD [ 04 ] +;
+   space( 11 ) + MTCOD [ 05 ] + space( 10 ) + MTCOD [ 06 ]
+?  SAI_NEGR
+******************************************************************************
+** SEGUNDA LINHA *** DA LETRA [ G ] ATE A LETRA [ L ]
+***************************************** && barra de protecao superior *******
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 07 ] ) + chr( MTK2[ 07 ] ) +;
+  	  replicate( chr( 192 ), MTTAM[ 07 ] )
+	for LOOP_2 = 08 to 12
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 192 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && corpo  do codigo de barras *******
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1[ 7 ] ) + chr( MTK2[ 7 ] ) +;
+	   MTBAR[ 01 ]
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+	for LOOP_2 = 08 to 12
+
+		?? space(05) + chr( 27 ) + "L" + chr( MTK1[ LOOP_2 ] ) + ;
+		   chr( MTK2 [ LOOP_2 ] ) + MTBAR[ LOOP_2 ]
+
+	next
+
+next
+*******************************************************************************
+***************************************** && barra de protecao inferior *******
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 07 ] ) + chr( MTK2[ 07 ] ) +;
+  	  replicate( chr( 003 ), MTTAM[ 07 ] )
+	for LOOP_2 = 08 to 12
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 003 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && linha codigo do cliente **********
+?  AV_1_6 + ENT_NEGR
+?  space( 11 ) + MTCOD [ 07 ] + space( 10 ) + MTCOD [ 08 ] +;
+   space( 11 ) + MTCOD [ 09 ] + space( 10 ) + MTCOD [ 10 ] +;
+   space( 11 ) + MTCOD [ 11 ] + space( 10 ) + MTCOD [ 12 ]
+?  SAI_NEGR
+******************************************************************************
+** TERCEIRA LINHA *** DA LETRA [ M ] ATE A LETRA [ R ]
+***************************************** && barra de protecao superior *******
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 13 ] ) + chr( MTK2[ 13 ] ) +;
+  	  replicate( chr( 192 ), MTTAM[ 13 ] )
+	for LOOP_2 = 14 to 18
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 192 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && corpo  do codigo de barras *******
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1[ 13 ] ) + chr( MTK2[ 13 ] ) +;
+	   MTBAR[ 13 ]
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+	for LOOP_2 = 14 to 18
+
+		?? space(05) + chr( 27 ) + "L" + chr( MTK1[ LOOP_2 ] ) + ;
+		   chr( MTK2 [ LOOP_2 ] ) + MTBAR[ LOOP_2 ]
+
+	next
+
+next
+*******************************************************************************
+***************************************** && barra de protecao inferior *******
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 13 ] ) + chr( MTK2[ 13 ] ) +;
+  	  replicate( chr( 003 ), MTTAM[ 13 ] )
+	for LOOP_2 = 14 to 18
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 003 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && linha codigo do cliente **********
+?  AV_1_6 + ENT_NEGR
+?  space( 11 ) + MTCOD [ 13 ] + space( 10 ) + MTCOD [ 14 ] +;
+   space( 11 ) + MTCOD [ 15 ] + space( 10 ) + MTCOD [ 16 ] +;
+   space( 11 ) + MTCOD [ 17 ] + space( 10 ) + MTCOD [ 18 ]
+?  SAI_NEGR
+*******************************************************************************
+** QUARTA LINHA *** DA LETRA [ S ] ATE A LETRA [ X ]
+***************************************** && barra de protecao superior *******
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 19 ] ) + chr( MTK2[ 19 ] ) +;
+  	  replicate( chr( 192 ), MTTAM[ 19 ] )
+	for LOOP_2 = 20 to 24
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 192 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && corpo  do codigo de barras *******
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1[ 19 ] ) + chr( MTK2[ 19 ] ) +;
+	   MTBAR[ 19 ]
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+	for LOOP_2 = 20 to 24
+
+		?? space(05) + chr( 27 ) + "L" + chr( MTK1[ LOOP_2 ] ) + ;
+		   chr( MTK2 [ LOOP_2 ] ) + MTBAR[ LOOP_2 ]
+
+	next
+
+next
+*******************************************************************************
+***************************************** && barra de protecao inferior *******
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 19 ] ) + chr( MTK2[ 19 ] ) +;
+  	  replicate( chr( 003 ), MTTAM[ 19 ] )
+	for LOOP_2 = 20 to 24
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 003 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && linha codigo do cliente **********
+?  AV_1_6 + ENT_NEGR
+?  space( 11 ) + MTCOD [ 19 ] + space( 10 ) + MTCOD [ 20 ] +;
+   space( 11 ) + MTCOD [ 21 ] + space( 10 ) + MTCOD [ 22 ] +;
+   space( 11 ) + MTCOD [ 23 ] + space( 10 ) + MTCOD [ 24 ]
+?  SAI_NEGR
+*******************************************************************************
+** QUINTA LINHA *** DA LETRA [ Y ] ATE A LETRA [ 3 ]
+***************************************** && barra de protecao superior *******
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 25 ] ) + chr( MTK2[ 25 ] ) +;
+  	  replicate( chr( 192 ), MTTAM[ 25 ] )
+	for LOOP_2 = 26 to 30
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 192 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && corpo  do codigo de barras *******
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1[ 25 ] ) + chr( MTK2[ 25 ] ) +;
+	   MTBAR[ 25 ]
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+	for LOOP_2 = 26 to 30
+
+		?? space(05) + chr( 27 ) + "L" + chr( MTK1[ LOOP_2 ] ) + ;
+		   chr( MTK2 [ LOOP_2 ] ) + MTBAR[ LOOP_2 ]
+
+	next
+
+next
+*******************************************************************************
+***************************************** && barra de protecao inferior *******
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 25 ] ) + chr( MTK2[ 25 ] ) +;
+  	  replicate( chr( 003 ), MTTAM[ 25 ] )
+	for LOOP_2 = 26 to 30
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 003 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && linha codigo do cliente **********
+?  AV_1_6 + ENT_NEGR
+?  space( 11 ) + MTCOD [ 25 ] + space( 10 ) + MTCOD [ 26 ] +;
+   space( 11 ) + MTCOD [ 27 ] + space( 10 ) + MTCOD [ 28 ] +;
+   space( 11 ) + MTCOD [ 29 ] + space( 10 ) + MTCOD [ 30 ]
+?  SAI_NEGR
+*******************************************************************************
+** SEXTA LINHA *** DA LETRA [ 4 ] ATE A LETRA [ 9 ]
+***************************************** && barra de protecao superior *******
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 31 ] ) + chr( MTK2[ 31 ] ) +;
+  	  replicate( chr( 192 ), MTTAM[ 31 ] )
+	for LOOP_2 = 32 to 36
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 192 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && corpo  do codigo de barras *******
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1[ 31 ] ) + chr( MTK2[ 31 ] ) +;
+	   MTBAR[ 31 ]
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+	for LOOP_2 = 32 to 36
+
+		?? space(05) + chr( 27 ) + "L" + chr( MTK1[ LOOP_2 ] ) + ;
+		   chr( MTK2 [ LOOP_2 ] ) + MTBAR[ LOOP_2 ]
+
+	next
+
+next
+*******************************************************************************
+***************************************** && barra de protecao inferior *******
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 [ 31 ] ) + chr( MTK2[ 31 ] ) +;
+  	  replicate( chr( 003 ), MTTAM[ 31 ] )
+	for LOOP_2 = 32 to 36
+
+		?? space( 05 )                 +;
+	  	chr( 27 ) + "L" + chr( MTK1 [ LOOP_2 ] ) + chr( MTK2[ LOOP_2 ] ) +;	
+	  	replicate( chr( 003 ), MTTAM[ LOOP_2 ] )
+
+	next
+
+next
+*******************************************************************************
+***************************************** && linha codigo do cliente **********
+?  AV_1_6 + ENT_NEGR
+?  space( 11 ) + MTCOD [ 31 ] + space( 10 ) + MTCOD [ 32 ] +;
+   space( 11 ) + MTCOD [ 33 ] + space( 10 ) + MTCOD [ 34 ] +;
+   space( 11 ) + MTCOD [ 35 ] + space( 10 ) + MTCOD [ 36 ]
+?  SAI_NEGR
+?
+? space( 10 ) + replicate( "=", 63 )
+?
+?
+return
+

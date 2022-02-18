@@ -1,0 +1,43 @@
+**************
+function Cb_25
+**************
+
+parameters CODIGO, PADRAO
+
+private T, B0, B1, E0, E1
+
+*---------------------------------------------------------------------------
+T = "00110100010100111000001011010001100000111001001010"	&& tabela de padrao
+*---------------------------------------------------------------------------
+if P_PAD = 2 										&& padrao monica    -> 150 dpi
+
+	B0 = chr( 255 )								&&	 barra  fina
+	B1 = replicate( chr( 255 ), 4 )			&&  barra  grossa
+	E0 = replicate( chr( 000 ), 4 )			&&  espaco fino
+	E1 = replicate( chr( 000 ), 6 ) 			&&  espaco grosso
+
+else													&& padrao epson     -> 120 dpi
+
+	B0 = chr( 255 )								&&	 barra  fina
+	B1 = replicate( chr( 255 ), 3 )			&&  barra  grossa
+	E0 = replicate( chr( 000 ), 3 )			&&  espaco fino
+	E1 = replicate( chr( 000 ), 5 )			&&  espaco grosso
+
+endif
+COD_BAR  = B0 + E0 + B0 + E0					&&  coloca o inicio em barras
+for X1 = 1 to len( CODIGO ) step 2	   	&&  loop da parte interna
+
+	for X2 = 1 to 5
+
+		N1		  =	val( mid( T, ( val( mid( CODIGO, X1  , 1) ) * 5 ) + X2, 1 ) )
+		N2		  =	val( mid( T, ( val( mid( CODIGO, X1+1, 1) ) * 5 ) + X2, 1 ) )
+		COD_BAR = 	COD_BAR + fieldcont( "B" + alltrim( str( N1 ) ) ) + ;
+									 fieldcont( "E" + alltrim( str( N2 ) ) )
+	next
+
+next													&&  fim do loop
+COD_BAR	= COD_BAR + B1 + E0 + B0			&&	 coloca o final  em barras
+
+return COD_BAR
+*------------------------------------------------------------------------------
+

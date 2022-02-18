@@ -1,0 +1,412 @@
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³                                                                            ³
+*³  		  				CODIGOS DE BARRAS PARA O ATENDIMENTO                     ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³ ENTER - ESC - ENCERRA - ACRESCENTA - LIMPA - IMPRIME - RETORNA - ESTORNO   ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+AV_1_216	 = chr( 27 ) + "3" + chr( 01 )		&&  seta espacamento de   1/216 "
+AV_1_72	 = chr( 27 ) + "3" + chr( 03 )		&&  seta espacamento de   1/72  "
+AV_1_6	 = chr( 27 ) + "3" + chr( 36 )		&&	 seta espacamento de   1/6   "
+ENT_NEGR  = chr( 27 ) + "E"						&&  ativa negrito
+SAI_NEGR	 = chr( 27 ) + "F"						&&  desativa negrito
+P_PAD     = 1
+set printer to "LPT1:"
+set console OFF
+set print   ON
+? " ------ TORUS INFORMATICA ------"
+?
+? " ------   ATENDIMENTO     ------"
+?
+?
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³		  				                                                            ³
+*³                             ENTER                                          ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+B1      = replicate( chr( 255 ), 1 )			&&	 barra  fina
+B2      = replicate( chr( 255 ), 3 )			&&  barra  media 
+B3      = replicate( chr( 255 ), 4 )			&&  barra  grossa
+B4      = replicate( chr( 255 ), 6 )			&&  barra  grossa
+E1      = replicate( chr( 000 ), 2 )			&&  espaco fino
+E2      = replicate( chr( 000 ), 4 )			&&  espaco medio 
+E3      = replicate( chr( 000 ), 5 )			&&  espaco grosso
+E4      = replicate( chr( 000 ), 6 )			&&  espaco grosso
+COD_BAR = B2 + E1 + B1 + E4 + B1 + E2 + B3 + E1 + B1 + E1 +   ;
+          B4 + E1 + B4 + E1 + B3 + E1 + B1 + E1 + B2 + E1 +   ;
+	  		 B1 + E4 + B3 + E1 + B2 + E4 + B3 + E1 + B1 + E1 + B2
+K1      = 00
+K2      = 00
+TAM_COD = len( COD_BAR )					       &&  calculo do tamanho do codigo
+K2 	  = _int( TAM_COD / 256 )				    &&  calculo do 2.  param. p/ imp.
+K1 	  = TAM_COD - 256 * K2					    &&  calculo do 1.  param. p/ imp.
+for LB01 = 1 to 2
+
+	?? AV_1_216  + space( 10 )                +;	&& esp. 1. col. esq. e cod.
+		chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +;	&& com. de entrada alta res.
+		replicate( chr( 192 ), K1 )		  		   && carac. da barra superior
+	?
+
+next
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( K1 ) + chr( K2 ) + COD_BAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+?? AV_1_216
+for LB06 = 1 to 2
+
+	?  space( 10 ) 						         +; && esp. 1. col. esq. e cod.
+		chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +; && com. de entrada alta res.
+		replicate( chr( 003 ), K1 ) 			  	   && carac. da barra superior
+	
+next
+? AV_1_6
+? space( 10 ) + ENT_NEGR + "ENTER"
+?
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³                             ESC                                            ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+COD_BAR = B2 + E1 + B1 + E4 + B1 + E2 + B4 + E1 + B1 + E1 +   ;
+          B3 + E1 + B4 + E1 + B2 + E1 + B2 + E1 + B2 + E4 +   ;
+	  		 B1 + E1 + B1 + E2 + B2 + E3 + B3 + E1 + B1 + E1 + B2
+K1      = 00
+K2      = 00
+TAM_COD = len( COD_BAR )					       &&  calculo do tamanho do codigo
+K2 	  = _int( TAM_COD / 256 )				    &&  calculo do 2.  param. p/ imp.
+K1 	  = TAM_COD - 256 * K2					    &&  calculo do 1.  param. p/ imp.
+for LB01 = 1 to 2
+
+	?? AV_1_216  + space( 10 )                +;	&& esp. 1. col. esq. e cod.
+		chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +;	&& com. de entrada alta res.
+		replicate( chr( 192 ), K1 )		  		   && carac. da barra superior
+	?
+
+next
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( K1 ) + chr( K2 ) + COD_BAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+?? AV_1_216
+for LB06 = 1 to 2
+
+	?  space( 10 ) 						         +; && esp. 1. col. esq. e cod.
+		chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +; && com. de entrada alta res.
+		replicate( chr( 003 ), K1 ) 			  	   && carac. da barra superior
+	
+next
+? av_1_6
+? space( 10 ) + "ESC"
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³                             ENCERRA                                        ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+MTBAR  = Cb_39( "E" , P_PAD )
+MTTAM  = len(   MTBAR )
+MTK2   = _int(  MTTAM / 256 )		
+MTK1   = MTTAM - 256  * MTK2 
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 192 ), MTTAM )
+
+next
+*---------------------------------------- && corpo  do codigo de barras -------
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+	   MTBAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && barra de protecao inferior -------
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 003 ), MTTAM )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && linha codigo do cliente ----------
+?  AV_1_6 
+?  space( 10 ) + "ENCERRA"
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³                           ACRESCENTA                                       ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+MTBAR  = Cb_39( "A" , P_PAD )
+MTTAM  = len(   MTBAR )
+MTK2   = _int(  MTTAM / 256 )		
+MTK1   = MTTAM - 256  * MTK2 
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 192 ), MTTAM )
+
+next
+*---------------------------------------- && corpo  do codigo de barras -------
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+	   MTBAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && barra de protecao inferior -------
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 003 ), MTTAM )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && linha codigo do cliente ----------
+?  AV_1_6 
+?  space( 10 ) + "ACRESCENTA"
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³                           LIMPA                                            ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+MTBAR  = Cb_39( "L" , P_PAD )
+MTTAM  = len(   MTBAR )
+MTK2   = _int(  MTTAM / 256 )		
+MTK1   = MTTAM - 256  * MTK2 
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 192 ), MTTAM )
+
+next
+*---------------------------------------- && corpo  do codigo de barras -------
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+	   MTBAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && barra de protecao inferior -------
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 003 ), MTTAM )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && linha codigo do cliente ----------
+?  AV_1_6 
+?  space( 10 ) + "LIMPA"
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³                            IMPRIME                                         ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+MTBAR  = Cb_39( "I" , P_PAD )
+MTTAM  = len(   MTBAR )
+MTK2   = _int(  MTTAM / 256 )		
+MTK1   = MTTAM - 256  * MTK2 
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 192 ), MTTAM )
+
+next
+*---------------------------------------- && corpo  do codigo de barras -------
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+	   MTBAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && barra de protecao inferior -------
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 003 ), MTTAM )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && linha codigo do cliente ----------
+?  AV_1_6 
+?  space( 10 ) + "IMPRIME"
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³                          RETORNA                                           ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+MTBAR  = Cb_39( "R" , P_PAD )
+MTTAM  = len(   MTBAR )
+MTK2   = _int(  MTTAM / 256 )		
+MTK1   = MTTAM - 256  * MTK2 
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 192 ), MTTAM )
+
+next
+*---------------------------------------- && corpo  do codigo de barras -------
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+	   MTBAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && barra de protecao inferior -------
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 003 ), MTTAM )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && linha codigo do cliente ----------
+?  AV_1_6 
+?  space( 10 ) + "RETORNA"
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³                           ESTORNO                                          ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+MTBAR  = Cb_39( "E" , P_PAD )
+MTTAM  = len(   MTBAR )
+MTK2   = _int(  MTTAM / 256 )		
+MTK1   = MTTAM - 256  * MTK2 
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 192 ), MTTAM )
+
+next
+*---------------------------------------- && corpo  do codigo de barras -------
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+	   MTBAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && barra de protecao inferior -------
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 003 ), MTTAM )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && linha codigo do cliente ----------
+?  AV_1_6 
+?  space( 10 ) + "ESTORNO"
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³                           SIM                                              ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+MTBAR  = Cb_39( "S" , P_PAD )
+MTTAM  = len(   MTBAR )
+MTK2   = _int(  MTTAM / 256 )		
+MTK1   = MTTAM - 256  * MTK2 
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1  ) + chr( MTK2 ) +;
+  	  replicate( chr( 192 ), MTTAM )
+
+next
+*---------------------------------------- && corpo  do codigo de barras -------
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+	   MTBAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && barra de protecao inferior -------
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1  ) + chr( MTK2 ) +;
+  	  replicate( chr( 003 ), MTTAM )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && linha codigo do cliente ----------
+?  AV_1_6 
+?  space( 10 ) + "SIM"
+*ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+*³  		  				                                                         ³
+*³                           NAO                                              ³
+*³                                                                            ³
+*ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+MTBAR  = Cb_39( "N" , P_PAD )
+MTTAM  = len(   MTBAR )
+MTK2   = _int(  MTTAM / 256 )		
+MTK1   = MTTAM - 256  * MTK2 
+for LB01 = 01 to 02
+
+	? AV_1_216  + space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 192 ), MTTAM )
+
+next
+*---------------------------------------- && corpo  do codigo de barras -------
+for LB03 = 1 to 18
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+	   MTBAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && barra de protecao inferior -------
+?? AV_1_216
+for LB06 = 01 to 02
+
+	? space( 10 ) +;
+  	  chr( 27 ) + "L" + chr( MTK1 ) + chr( MTK2 ) +;
+  	  replicate( chr( 003 ), MTTAM )
+
+next
+*------------------------------------------------------------------------------
+*---------------------------------------- && linha codigo do cliente ----------
+?  AV_1_6 
+?  space( 10 ) + "NAO" + SAI_NEGR
+

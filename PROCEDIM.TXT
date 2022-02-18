@@ -1,0 +1,23 @@
+1 - Alterar 
+
+	POD_12.1 - modi stru inclui campo DATA_R e repassa o DATA
+	
+2 - Sequencia
+
+	1 - TRANSMEM
+	2 - TRANSFUN
+	3 - TRANSCAT
+	4 - TRANSDIS
+	5 - TRANSPAI
+	6 - TRANSCLI
+	7 - TRANSTIT
+	8 - TRANSFIT
+	
+3 - Final
+
+	1 - Rodar o PALAVRA
+	2 - Indexacao Arquivos - Todos
+	3 - Titulos nø de copias
+	4 - Titulos vagos acerto
+	5 - Acerto de copias
+			

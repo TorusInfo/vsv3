@@ -1,0 +1,63 @@
+CLEAR
+@ 02,30 SAY "CODIGO DE BARRAS DO ESC"
+
+AV_1_216	 = chr( 27 ) + "3" + chr( 01 )		&&  seta espacamento de   1/216 "
+AV_1_72	 = chr( 27 ) + "3" + chr( 03 )		&&  seta espacamento de   1/72  "
+AV_1_6	 = chr( 27 ) + "3" + chr( 36 )		&&	 seta espacamento de   1/6   "
+
+B1      = replicate( chr( 255 ), 1 )			&&	 barra  fina
+B2      = replicate( chr( 255 ), 3 )			&&  barra  media 
+B3      = replicate( chr( 255 ), 4 )			&&  barra  grossa
+B4      = replicate( chr( 255 ), 6 )			&&  barra  grossa
+E1      = replicate( chr( 000 ), 2 )			&&  espaco fino
+E2      = replicate( chr( 000 ), 4 )			&&  espaco medio 
+E3      = replicate( chr( 000 ), 5 )			&&  espaco grosso
+E4      = replicate( chr( 000 ), 6 )			&&  espaco grosso
+COD_BAR = B2 + E1 + B1 + E4 + B1 + E2 + B4 + E1 + B1 + E1 +   ;
+          B3 + E1 + B4 + E1 + B2 + E1 + B2 + E1 + B2 + E4 +   ;
+	  		 B1 + E1 + B1 + E2 + B2 + E3 + B3 + E1 + B1 + E1 + B2
+K1      = 00
+K2      = 00
+TAM_COD = len( COD_BAR )					       &&  calculo do tamanho do codigo
+K2 	  = _int( TAM_COD / 256 )				    &&  calculo do 2.  param. p/ imp.
+K1 	  = TAM_COD - 256 * K2					    &&  calculo do 1.  param. p/ imp.
+
+@ 12,00    say " K1 = "
+@ 12,col() say K1  picture "@R 9999"
+@ 14,00    say " K2 = "
+@ 14,col() say K2  picture "@R 9999"
+@ 16,00    say " TAMANHO = "
+@ 16,col() say TAM_COD picture "@R 9999999"
+set printer to "LPT1:"
+set console OFF
+set print   ON
+for LB01 = 1 to 2
+
+	?? AV_1_216  + space( 10 )                +;	&& esp. 1. col. esq. e cod.
+		chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +;	&& com. de entrada alta res.
+		replicate( chr( 192 ), K1 )		  		   && carac. da barra superior
+	?
+
+next
+for LB03 = 1 to 22
+
+	?  space( 10 ) + chr( 27 ) + "L" + chr( K1 ) + chr( K2 ) + COD_BAR
+	?? iif( _int( LB03/2 ) = LB03/2, AV_1_216, AV_1_72 )
+
+next
+?? AV_1_216
+for LB06 = 1 to 2
+
+	?  space( 10 ) 						         +; && esp. 1. col. esq. e cod.
+		chr( 27 ) + "L" + chr( K1 ) + chr( 0 ) +; && com. de entrada alta res.
+		replicate( chr( 003 ), K1 ) 			  	   && carac. da barra superior
+	
+next
+? av_1_6
+?
+set printer to
+set console ON
+set print   OFF
+
+return
+

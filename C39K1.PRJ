@@ -1,0 +1,164 @@
+P_PAD = 1
+CLEAR
+DO WHILE LASTKEY() # 27
+
+	CODIGO = SPACE(20)
+	KEYBOARD 13
+	@ 08,10 SAY "PADRAO : " GET P_PAD  picture "9"
+	@ 10,10 SAY "CODIGO : " GET CODIGO picture "@!"
+	READ
+	codigo = upper( alltrim( codigo ) )
+	Testador()
+
+ENDDO
+
+quit
+
+*****************
+function Testador
+*****************
+
+*if P_PAD = 2 										&& padrao monica    -> 150 dpi
+*
+*	B0 = chr( 255 )								&&	 barra  fina
+*	B1 = replicate( chr( 255 ), 4 )			&&  barra  grossa
+*	E0 = replicate( chr( 000 ), 4 )			&&  espaco fino
+*	E1 = replicate( chr( 000 ), 6 )			&&  espaco grosso
+*
+*else													&& padrao epson     -> 120 dpi
+*
+	B0 = chr( 255 )								&&	 barra  fina
+	B1 = replicate( chr( 255 ), 3 )			&&  barra  grossa
+	E0 = replicate( chr( 000 ), 3 )			&&  espaco fino
+	E1 = replicate( chr( 000 ), 5 )			&&  espaco grosso
+*
+*endif
+declare MAT_39 [ 45 ], MATC39 [ 45 ]
+Mat39()
+
+COD_BAR = MAT_39[ 01 ] + E0	                      && coloca inicio barras
+for X1 = 1 to len( CODIGO )
+
+	X2 = ascan( MATC39, mid( CODIGO, X1, 1 ) )
+	if X2 # 0
+
+		COD_BAR = COD_BAR + MAT_39 [ X2 ] + E0
+
+	endif
+
+next													    &&  fim do loop
+K1       = 00
+K2       = 00
+COD_BAR	= COD_BAR + MAT_39[ 01 ]             &&  coloca o final  em barras
+TAM_COD	= len( COD_BAR )					       &&  calculo do tamanho do codigo
+K2 		= _int( TAM_COD / 256 )				    &&  calculo do 2.  param. p/ imp.
+K1 		= TAM_COD - 256 * K2					    &&  calculo do 1.  param. p/ imp.
+*BAR_SUP	= replicate( chr( 192 ), TAM_COD )   &&  barra de protecao superior
+*BAR_INF	= replicate( chr( 003 ), TAM_COD )   &&  barra de protecao inferior
+
+@ 12,00    say " K1 = "
+@ 12,col() say K1  picture "@R 9999"
+@ 14,00    say " K2 = "
+@ 14,col() say K2  picture "@R 9999"
+@ 16,00    say " TAMANHO = "
+@ 16,col() say TAM_COD picture "@R 9999999"
+
+return
+*
+
+**************
+function Mat39 
+**************
+
+MAT_39 [ 01 ] = B0+E1+B0+E0+B1+E0+B1+E0+B0
+MAT_39 [ 02 ] = B1+E0+B0+E1+B0+E0+B0+E0+B1
+MAT_39 [ 03 ] = B0+E0+B1+E1+B0+E0+B0+E0+B1
+MAT_39 [ 04 ] = B1+E0+B1+E1+B0+E0+B0+E0+B0
+MAT_39 [ 05 ] = B0+E0+B0+E1+B1+E0+B0+E0+B1
+MAT_39 [ 06 ] = B1+E0+B0+E1+B1+E0+B0+E0+B0
+MAT_39 [ 07 ] = B0+E0+B1+E1+B1+E0+B0+E0+B0
+MAT_39 [ 08 ] = B0+E0+B0+E1+B0+E0+B1+E0+B1
+MAT_39 [ 09 ] = B1+E0+B0+E1+B0+E0+B1+E0+B0
+MAT_39 [ 10 ] = B0+E0+B1+E1+B0+E0+B1+E0+B0
+MAT_39 [ 11 ] = B0+E0+B0+E1+B1+E0+B1+E0+B0
+MAT_39 [ 12 ] = B1+E0+B0+E0+B0+E1+B0+E0+B1
+MAT_39 [ 13 ] = B0+E0+B1+E0+B0+E1+B0+E0+B1
+MAT_39 [ 14 ] = B1+E0+B1+E0+B0+E1+B0+E0+B0
+MAT_39 [ 15 ] = B0+E0+B0+E0+B1+E1+B0+E0+B1
+MAT_39 [ 16 ] = B1+E0+B0+E0+B1+E1+B0+E0+B0
+MAT_39 [ 17 ] = B0+E0+B1+E0+B1+E1+B0+E0+B0
+MAT_39 [ 18 ] = B0+E0+B0+E0+B0+E1+B1+E0+B1
+MAT_39 [ 19 ] = B1+E0+B0+E0+B0+E1+B1+E0+B0
+MAT_39 [ 20 ] = B0+E0+B1+E0+B0+E1+B1+E0+B0
+MAT_39 [ 21 ] = B0+E0+B0+E0+B1+E1+B1+E0+B0
+MAT_39 [ 22 ] = B1+E0+B0+E0+B0+E0+B0+E1+B1
+MAT_39 [ 23 ] = B0+E0+B1+E0+B0+E0+B0+E1+B1
+MAT_39 [ 24 ] = B1+E0+B1+E0+B0+E0+B0+E1+B0
+MAT_39 [ 25 ] = B0+E0+B0+E0+B1+E0+B0+E1+B1
+MAT_39 [ 26 ] = B1+E0+B0+E0+B1+E0+B0+E1+B0
+MAT_39 [ 28 ] = B0+E0+B1+E0+B1+E0+B0+E1+B0
+MAT_39 [ 29 ] = B0+E0+B0+E0+B0+E0+B1+E1+B1
+MAT_39 [ 30 ] = B1+E0+B0+E0+B0+E0+B1+E1+B0
+MAT_39 [ 31 ] = B0+E0+B1+E0+B0+E0+B1+E1+B0
+MAT_39 [ 32 ] = B0+E0+B0+E0+B1+E0+B1+E1+B0
+MAT_39 [ 33 ] = B1+E1+B0+E0+B0+E0+B0+E0+B1
+MAT_39 [ 34 ] = B0+E1+B1+E0+B0+E0+B0+E0+B1
+MAT_39 [ 35 ] = B1+E1+B1+E0+B0+E0+B0+E0+B0
+MAT_39 [ 36 ] = B0+E1+B0+E0+B1+E0+B0+E0+B1
+MAT_39 [ 37 ] = B1+E1+B0+E0+B1+E0+B0+E0+B0
+MAT_39 [ 38 ] = B0+E1+B1+E0+B1+E0+B0+E0+B0
+MAT_39 [ 39 ] = B0+E1+B0+E0+B0+E0+B1+E0+B1
+MAT_39 [ 40 ] = B1+E1+B0+E0+B0+E0+B1+E0+B0
+MAT_39 [ 41 ] = B0+E1+B1+E0+B0+E0+B1+E0+B0
+MAT_39 [ 42 ] = B0+E1+B0+E1+B0+E1+B0+E0+B0
+MAT_39 [ 43 ] = B0+E1+B0+E1+B0+E0+B0+E1+B0
+MAT_39 [ 44 ] = B0+E1+B0+E0+B0+E1+B0+E1+B0
+MAT_39 [ 45 ] = B0+E0+B0+E1+B0+E1+B0+E1+B0
+
+MATC39 [ 01 ] = "*"
+MATC39 [ 02 ] = "1"
+MATC39 [ 03 ] = "2"
+MATC39 [ 04 ] = "3"
+MATC39 [ 05 ] = "4"
+MATC39 [ 06 ] = "5"
+MATC39 [ 07 ] = "6"
+MATC39 [ 08 ] = "7"
+MATC39 [ 09 ] = "8"
+MATC39 [ 10 ] = "9"
+MATC39 [ 11 ] = "0"
+MATC39 [ 12 ] = "A"
+MATC39 [ 13 ] = "B"
+MATC39 [ 14 ] = "C"
+MATC39 [ 15 ] = "D"
+MATC39 [ 16 ] = "E"
+MATC39 [ 17 ] = "F"
+MATC39 [ 18 ] = "G"
+MATC39 [ 19 ] = "H"
+MATC39 [ 20 ] = "I"
+MATC39 [ 21 ] = "J"
+MATC39 [ 22 ] = "K"
+MATC39 [ 23 ] = "L"
+MATC39 [ 24 ] = "M"
+MATC39 [ 25 ] = "N"
+MATC39 [ 26 ] = "O"
+MATC39 [ 28 ] = "P"
+MATC39 [ 29 ] = "Q"
+MATC39 [ 30 ] = "R"
+MATC39 [ 31 ] = "S"
+MATC39 [ 32 ] = "T"
+MATC39 [ 33 ] = "U"
+MATC39 [ 34 ] = "V"
+MATC39 [ 35 ] = "W"
+MATC39 [ 36 ] = "X"
+MATC39 [ 37 ] = "Y"
+MATC39 [ 38 ] = "Z"
+MATC39 [ 39 ] = "-"
+MATC39 [ 40 ] = "."
+MATC39 [ 41 ] = " "
+MATC39 [ 42 ] = "$"
+MATC39 [ 43 ] = "/"
+MATC39 [ 44 ] = "+"
+MATC39 [ 45 ] = "%"
+
+return
+

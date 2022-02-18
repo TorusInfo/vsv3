@@ -1,0 +1,85 @@
+**************
+function Cb_39 
+**************
+
+parameters CODENV, PADRAO
+private    CODBAR, B0, B1, E0, E1, X_POS
+
+CODENV    = upper( alltrim( CODENV ) )
+if PADRAO = 2 										&& padrao monica    -> 150 dpi
+
+	B0 = chr( 255 )								&&	 barra  fina
+	B1 = replicate( chr( 255 ), 4 )			&&  barra  grossa
+	E0 = replicate( chr( 000 ), 4 )			&&  espaco fino
+	E1 = replicate( chr( 000 ), 6 )			&&  espaco grosso
+
+else													&& padrao epson     -> 120 dpi
+
+	B0 = chr( 255 )								&&	 barra  fina
+	B1 = replicate( chr( 255 ), 3 )			&&  barra  grossa
+	E0 = replicate( chr( 000 ), 3 )			&&  espaco fino
+	E1 = replicate( chr( 000 ), 5 )			&&  espaco grosso
+
+endif
+M3942  = "010010100"   && "*"
+M3949  = "100100001"   && "1"
+M3950  = "001100001"   && "2"
+M3951  = "101100000"   && "3"
+M3952  = "000110001"   && "4"
+M3953  = "100110000"   && "5"
+M3954  = "001110000"   && "6"
+M3955  = "000100101"   && "7"
+M3956  = "100100100"   && "8"
+M3957  = "001100100"   && "9"
+M3948  = "000110100"   && "0"
+M3965  = "100001001"   && "A"
+M3966  = "001001001"   && "B"
+M3967  = "101001000"   && "C"
+M3968  = "000011001"   && "D"
+M3969  = "100011000"   && "E"
+M3970  = "001011000"   && "F"
+M3971  = "000001101"   && "G"
+M3972  = "100001100"   && "H"
+M3973  = "001001100"   && "I"
+M3974  = "000011100"   && "J"
+M3975  = "100000011"   && "K"
+M3976  = "001000011"   && "L"
+M3977  = "101000010"   && "M"
+M3978  = "000010011"   && "N"
+M3979  = "100010010"   && "O"
+M3980  = "001010010"   && "P"
+M3981  = "000000111"   && "Q"
+M3982  = "100000110"   && "R"
+M3983  = "001000110"   && "S"
+M3984  = "000010110"   && "T"
+M3985  = "110000001"   && "U"
+M3986  = "011000001"   && "V"
+M3987  = "111000000"   && "W"
+M3988  = "010010001"   && "X"
+M3989  = "110010000"   && "Y"
+M3990  = "011010000"   && "Z"
+M3945  = "010000101"   && "-"
+M3946  = "110000100"   && "."
+M3932  = "011000100"   && " "
+M3936  = "010101000"   && "$"
+M3947  = "010100010"   && "/"
+M3943  = "010001010"   && "+"
+M3937  = "000101010"   && "%"
+CODBAR = B0 + E1 + B0 + E0 + B1 + E0 + B1 + E0 + B0 + E0
+for X_POS = 1 to len( CODENV )
+
+	TENTAR = fieldcont( "M39" + str( asc( mid( CODENV, X_POS, 1 ) ), 2, 0 ) ) 
+	for X_SOP = 1 to 9
+
+		CODBAR = CODBAR + fieldcont( iif( _int( X_SOP/2 ) # X_SOP/2, ;
+		         "B" + mid( TENTAR, X_SOP, 1 ),                      ;
+					"E" + mid( TENTAR, X_SOP, 1 ) ) )
+
+	next
+	CODBAR = CODBAR + E0
+
+next												       && fim do loop
+CODBAR   = CODBAR + B0 + E1 + B0 + E0 + B1 + E0 + B1 + E0 + B0
+
+return CODBAR
+
